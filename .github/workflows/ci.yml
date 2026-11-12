@@ -1,0 +1,21 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - name: Unit tests (incl. brute-force optimality)
+        run: pytest -q
+      - name: Demo run + comparison
+        run: |
+          python scripts/make_demo_image.py
+          python main.py data/demo.png --algo dp --remove-cols 20 --remove-rows 10 --out output/ci
+          python evaluate.py data/demo.png --cols 8 --rows 4 --max-width 60 --out output/eval
+          python scripts/greedy_failure_case.py
+      - name: Keep results
+        uses: actions/upload-artifact@v4
+        with: { name: results, path: output/ }
