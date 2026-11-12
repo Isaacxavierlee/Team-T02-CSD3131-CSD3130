@@ -9,7 +9,7 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install -r requirements.txt
       - name: Unit tests (incl. brute-force optimality)
-        run: pytest -q
+        run: python -m pytest -q
       - name: Demo run + comparison
         run: |
           python scripts/make_demo_image.py
