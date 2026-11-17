@@ -48,6 +48,31 @@ start that leads to three pixels costing 50 each. Starting two columns away cost
 for a total of 4. The optional three-step lookahead finds that route on this fixture. It has
 a higher constant search cost and can still miss a minimum beyond its horizon.
 
+## Compare the methods
+
+`seam-evaluate` runs native DP and greedy on the same width-limited copy of each input.
+Each method receives the same target, Sobel energy calculation and vertical-first removal
+order. The tracked pass records the overlay and chosen paths. Separate timed passes run
+with tracking disabled and must reproduce the tracked image and energy sum.
+
+To include the existing Python graph-cut implementation, install Python 3 with development
+headers and use the same interpreter for pip and CMake. The C++ evaluator passes the current
+oriented energy map to `seam_carving/algorithms/graphcut.py` after every removal.
+
+```sh
+python -m pip install numpy networkx pybind11
+cmake -S . -B build/compare -DCMAKE_BUILD_TYPE=Release -DSEAM_WITH_PYTHON_GRAPHCUT=ON
+cmake --build build/compare --config Release
+ctest --test-dir build/compare -C Release --output-on-failure
+build/compare/seam-evaluate --with-graphcut --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/eval data/01_landmark.jpg data/03_person.jpg
+```
+
+With Visual Studio the binary is `build/compare/Release/seam-evaluate.exe`. If several
+Python versions are installed, pass `-DPython3_EXECUTABLE=/path/to/python` at configure time.
+Each input gets a resized PNG and an original-coordinate overlay per method, plus a comparison
+panel. `results.csv` records individual repetitions, stage and total times, seam energy,
+pixel differences and the number of steps that chose a different path from DP.
+
 ## Original Python pipeline
 
 **Quick start (Windows):** double-click `run.bat`  (Mac/Linux: `./run.sh`). It updates the code, sets up Python libraries and opens the app.
