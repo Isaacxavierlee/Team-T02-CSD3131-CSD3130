@@ -16,7 +16,14 @@ target_link_libraries(seam_image PUBLIC ${OpenCV_LIBS} Threads::Threads)
 add_library(seam_dp cpp/dp.cpp)
 target_link_libraries(seam_dp PUBLIC seam_image)
 
+add_library(seam_resize cpp/resize.cpp)
+target_link_libraries(seam_resize PUBLIC seam_image)
+
 if(BUILD_TESTING)
+    add_executable(test_resize tests/cpp/test_resize.cpp)
+    target_link_libraries(test_resize PRIVATE seam_resize seam_dp)
+    add_test(NAME resize_playback COMMAND test_resize)
+
     add_executable(test_dp tests/cpp/test_dp.cpp)
     target_link_libraries(test_dp PRIVATE seam_dp)
     add_test(NAME dp_optimality COMMAND test_dp)
