@@ -5,23 +5,74 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
       - name: Install OpenCV and a display for the GUI test
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends libopencv-dev xvfb xauth
+          python -m pip install numpy networkx pybind11
       - name: Build the C++ application and run the tests
         run: |
-          cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release \
+            -DSEAM_WITH_PYTHON_GRAPHCUT=ON -DPython3_EXECUTABLE="$(command -v python)"
           cmake --build build/native --parallel 2
           ctest --test-dir build/native --output-on-failure
           xvfb-run -a build/native/seam-carve data/demo.png --max-width 40 --gui-smoke
-      - name: Publish the tested example and its playback frames
+          build/native/seam-evaluate --with-graphcut --max-width 24 --cols 2 --rows 1 \
+            --repeats 1 --out build/native/ci-comparison data/*.jpg
+      - name: Publish comparison images, metrics and playback frames
         uses: actions/upload-artifact@v4
         with:
           name: native-seam-carving-example
           path: |
             build/native/cli/
             build/native/cli-frames/
+            build/native/ci-comparison/
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract the OpenCV 4.12 Windows SDK
+        shell: pwsh
+        run: |
+          curl.exe --fail --silent --show-error --location --output opencv-sdk.exe https://github.com/opencv/opencv/releases/download/4.12.0/opencv-4.12.0-windows.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $expected = 'B753B14D880B9BC8D89D6ACD3B665C040BAEC0211078435432FCAE117DB707AF'
+          if ((Get-FileHash opencv-sdk.exe).Hash -ne $expected) { throw 'OpenCV SDK checksum mismatch' }
+          7z x opencv-sdk.exe '-obuild/deps' 'opencv/build/*' 'opencv/LICENSE*.txt' -y -bso0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          (Resolve-Path build/deps/opencv/build/x64/vc16/bin).Path >> $env:GITHUB_PATH
+      - name: Build and test the Windows application
+        shell: pwsh
+        run: |
+          cmake -S . -B build/native -G "Visual Studio 17 2022" -A x64 -DOpenCV_DIR=build/deps/opencv/build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build/native --config Release --parallel 2
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir build/native -C Release --output-on-failure
+      - name: Assemble the tested executables, image codecs and examples
+        shell: pwsh
+        run: |
+          $package = New-Item -ItemType Directory -Path build/SeamCarving-Windows
+          $sdk = 'build/deps/opencv/build'
+          Copy-Item build/native/Release/seam-*.exe $package
+          Copy-Item "$sdk/x64/vc16/bin/opencv_world4120.dll","$sdk/x64/vc16/bin/opencv_videoio_ffmpeg4120_64.dll" $package
+          Copy-Item data $package -Recurse
+          Copy-Item evaluation $package -Recurse
+          Copy-Item "$sdk/etc/licenses" $package -Recurse
+          Copy-Item build/deps/opencv/LICENSE*.txt "$package/licenses"
+          Copy-Item README.md $package
+          Push-Location $package
+          try {
+              .\seam-carve.exe data/demo.png --remove-cols 2 --out ..\package-check\demo
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } finally { Pop-Location }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SeamCarving-Windows-x64
+          path: build/SeamCarving-Windows/
+          if-no-files-found: error
   test:
     runs-on: ubuntu-latest
     steps:

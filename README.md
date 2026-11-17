@@ -16,6 +16,10 @@ ctest --test-dir build/native -C Release --output-on-failure
 
 ## Run the C++ application
 
+For a prebuilt Windows copy, open a successful CI run, download **SeamCarving-Windows-x64**
+from its artifacts and extract the ZIP. Double-click `seam-carve.exe` next to its `data`
+directory. The package includes the native DP and greedy evaluator and the profiling tool.
+
 From the repository root, double-click `run.bat` on Windows or run `bash run.sh` on Linux
 or macOS. Both launchers build the application and open the demo photo. Pass an image path
 and `--interactive` to open another photo. To call the executable directly, use
