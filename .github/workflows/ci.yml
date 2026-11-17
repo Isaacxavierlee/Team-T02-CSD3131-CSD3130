@@ -1,6 +1,27 @@
 name: CI
 on: [push, pull_request]
 jobs:
+  native:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenCV and a display for the GUI test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libopencv-dev xvfb xauth
+      - name: Build the C++ application and run the tests
+        run: |
+          cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/native --parallel 2
+          ctest --test-dir build/native --output-on-failure
+          xvfb-run -a build/native/seam-carve data/demo.png --max-width 40 --gui-smoke
+      - name: Publish the tested example and its playback frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-seam-carving-example
+          path: |
+            build/native/cli/
+            build/native/cli-frames/
   test:
     runs-on: ubuntu-latest
     steps:
