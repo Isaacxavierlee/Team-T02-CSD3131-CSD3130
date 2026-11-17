@@ -13,6 +13,15 @@ add_library(seam_image cpp/image.cpp)
 target_include_directories(seam_image PUBLIC include ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(seam_image PUBLIC ${OpenCV_LIBS} Threads::Threads)
 
+add_library(seam_dp cpp/dp.cpp)
+target_link_libraries(seam_dp PUBLIC seam_image)
+
+if(BUILD_TESTING)
+    add_executable(test_dp tests/cpp/test_dp.cpp)
+    target_link_libraries(test_dp PRIVATE seam_dp)
+    add_test(NAME dp_optimality COMMAND test_dp)
+endif()
+
 if(BUILD_TESTING)
     add_executable(test_image tests/cpp/test_image.cpp)
     target_link_libraries(test_image PRIVATE seam_image)

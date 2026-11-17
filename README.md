@@ -20,6 +20,21 @@ replicates edge pixels and sums the absolute horizontal and vertical response ov
 colour channels. The strip variant reads the same neighbouring rows while workers write to
 separate regions of the output. Both use Θ(height × width) work and space for the map.
 
+### Dynamic programming
+
+Treat one row as a step for a vertical seam and one column as a step for a horizontal seam.
+Let `D(s,p)` be the minimum energy of a connected seam ending at position `p` in step `s`.
+The first step costs its own pixel energy. At each later pixel, add its energy to the smallest
+of the up to three reachable predecessor costs. Any cheaper route to that predecessor could
+replace the prefix of the seam, which is why keeping its minimum suffices. Start at the cheapest
+final position and follow the recorded predecessor offsets backwards. Ties use the lowest
+position at each decision.
+
+`find_dp` visits each pixel once. For an H × W image its time is Θ(HW). Reconstruction needs
+one signed byte per pixel, plus two rows of doubles (two columns for a horizontal seam).
+`find_dp_full` retains every cumulative cost for inspection. Both versions return the same
+path. The `dp_optimality` test enumerates every legal path on small maps in both directions.
+
 ## Original Python pipeline
 
 **Quick start (Windows):** double-click `run.bat`  (Mac/Linux: `./run.sh`). It updates the code, sets up Python libraries and opens the app.
