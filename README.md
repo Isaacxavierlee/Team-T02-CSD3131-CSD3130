@@ -70,6 +70,17 @@ one signed byte per pixel, plus two rows of doubles (two columns for a horizonta
 `find_dp_full` retains every cumulative cost for inspection. Both versions return the same
 path. The `dp_optimality` test enumerates every legal path on small maps in both directions.
 
+Run `seam-profile data/05_architecture.jpg` from the repository using the executable in your
+build directory. Its CSV compares five runs per configuration on progressively wider copies of
+the same photo. The Sobel runs request one, two, four or eight workers. The DP runs use one
+precomputed energy map per size. `dp_work_buffer_bytes` counts the cost and parent arrays. The
+input map, returned path and allocator overhead are outside this count.
+
+The [recorded profile](evaluation/dp-profile.csv) used `05_architecture.jpg`, MSVC 19.44
+Release, OpenCV 4.12 and a Core i7-13700HX. At 512 × 682, rolling DP used 357,376 bytes of
+working buffers and full DP used 3,142,656. Four Sobel workers took 1.11 ms per map at this
+size and 0.09 ms at 64 × 85. The serial times were 3.46 ms and 0.05 ms respectively.
+
 ### Greedy seam search
 
 `find_greedy` starts at the first minimum in the entry row, then takes the cheapest reachable
@@ -111,6 +122,7 @@ pixel differences and the number of steps that chose a different path from DP.
 ## Original Python pipeline
 
 Isaac's original implementation can be run directly for comparison.
+
 ```bash
 pip install -r requirements.txt
 python scripts/make_demo_image.py

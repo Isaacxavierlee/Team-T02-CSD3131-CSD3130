@@ -11,13 +11,22 @@ include(CTest)
 
 add_library(seam_image cpp/image.cpp)
 target_include_directories(seam_image PUBLIC include ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(seam_image PUBLIC ${OpenCV_LIBS} Threads::Threads)
+target_link_libraries(seam_image PUBLIC opencv_core opencv_imgcodecs opencv_imgproc Threads::Threads)
 
 add_library(seam_dp cpp/dp.cpp)
 target_link_libraries(seam_dp PUBLIC seam_image)
 
+add_library(seam_greedy cpp/greedy.cpp)
+target_link_libraries(seam_greedy PUBLIC seam_image)
+
 add_library(seam_resize cpp/resize.cpp)
 target_link_libraries(seam_resize PUBLIC seam_image)
+
+add_executable(seam-carve cpp/app.cpp cpp/studio.cpp)
+target_link_libraries(seam-carve PRIVATE seam_resize seam_dp seam_greedy opencv_highgui opencv_videoio)
+
+add_executable(seam-profile cpp/profile.cpp)
+target_link_libraries(seam-profile PRIVATE seam_dp)
 
 add_executable(seam-evaluate cpp/evaluate.cpp)
 target_link_libraries(seam-evaluate PRIVATE seam_resize seam_dp seam_greedy)
@@ -66,21 +75,11 @@ if(BUILD_TESTING)
     add_executable(test_dp tests/cpp/test_dp.cpp)
     target_link_libraries(test_dp PRIVATE seam_dp)
     add_test(NAME dp_optimality COMMAND test_dp)
-endif()
 
-if(BUILD_TESTING)
     add_executable(test_image tests/cpp/test_image.cpp)
     target_link_libraries(test_image PRIVATE seam_image)
     add_test(NAME image_energy COMMAND test_image "${PROJECT_SOURCE_DIR}/data/01_landmark.jpg")
-endif()
 
-add_library(seam_greedy cpp/greedy.cpp)
-target_link_libraries(seam_greedy PUBLIC seam_image)
-
-add_executable(seam-carve cpp/app.cpp cpp/studio.cpp)
-target_link_libraries(seam-carve PRIVATE seam_resize seam_dp seam_greedy opencv_highgui opencv_videoio)
-
-if(BUILD_TESTING)
     add_executable(test_greedy tests/cpp/test_greedy.cpp)
     target_link_libraries(test_greedy PRIVATE seam_greedy)
     add_test(NAME greedy_choices COMMAND test_greedy)
