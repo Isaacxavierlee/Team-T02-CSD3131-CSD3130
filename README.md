@@ -1,4 +1,26 @@
-# Seam Carving - Assignment 2 (complete pipeline)
+# Seam carving · Assignment 2
+
+## Build the C++ implementation
+
+Use a C++17 compiler, CMake 3.16 or later and the OpenCV 4 development package. On Ubuntu install
+`libopencv-dev`. On Windows install Visual Studio's **Desktop development with C++** workload,
+extract the [OpenCV Windows SDK](https://opencv.org/releases/), and pass
+`-DOpenCV_DIR=C:/opencv/build` to the configure command. Add the SDK's `x64/vc16/bin` directory
+to `PATH` so Windows can find its DLLs.
+
+```sh
+cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
+cmake --build build/native --config Release --parallel
+ctest --test-dir build/native -C Release --output-on-failure
+```
+
+The image library loads colour photos and computes energy from Sobel derivatives, finite
+differences or the difference between the two pixels a removal would bring together. Sobel
+replicates edge pixels and sums the absolute horizontal and vertical response over all three
+colour channels. The strip variant reads the same neighbouring rows while workers write to
+separate regions of the output. Both use Θ(height × width) work and space for the map.
+
+## Original Python pipeline
 
 **Quick start (Windows):** double-click `run.bat`  (Mac/Linux: `./run.sh`). It updates the code, sets up Python libraries and opens the app.
 
@@ -16,13 +38,7 @@ python scripts/greedy_failure_case.py                                           
 pytest -q
 ```
 
-## Start here
-* `docs/BABYSIT_ISAAC.md` - day-by-day plan (team lead)
-* `docs/TEAM_GUIDE.md` - what each person owns and how to improve it
-* `docs/SPEC_TRACEABILITY.md` - every assignment requirement -> file -> proof
-* `docs/THEORY_ANSWERS.md`, `docs/REPORT_TEMPLATE.md`, `docs/PRESENTATION_PLAN.md`, `docs/AI_DECLARATION_TEMPLATE.md`, `docs/QUIZ_PREP.md`
-
-## Files
+### Python files
 | File | Owner | Spec |
 |---|---|---|
 | `seam_carving/io_utils.py`, `energy.py`, `visualize.py`, `main.py`, `gui.py`, `run.bat` | Isaac | 1a, 2b, 7a, 7b |
