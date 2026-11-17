@@ -16,6 +16,9 @@ target_link_libraries(seam_image PUBLIC ${OpenCV_LIBS} Threads::Threads)
 add_library(seam_dp cpp/dp.cpp)
 target_link_libraries(seam_dp PUBLIC seam_image)
 
+add_executable(seam-profile cpp/profile.cpp)
+target_link_libraries(seam-profile PRIVATE seam_dp)
+
 if(BUILD_TESTING)
     add_executable(test_dp tests/cpp/test_dp.cpp)
     target_link_libraries(test_dp PRIVATE seam_dp)
