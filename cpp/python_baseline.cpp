@@ -29,9 +29,8 @@ py::scoped_interpreter start_interpreter() {
 PythonBaseline::PythonBaseline() : interpreter_(start_interpreter()) {
     try {
         py::list paths = py::module_::import("sys").attr("path");
-#ifdef SEAM_PYTHON_SITE
-        paths.attr("insert")(0, SEAM_PYTHON_SITE);
-#endif
+        paths.attr("insert")(0, SEAM_NETWORKX_SITE);
+        paths.attr("insert")(0, SEAM_NUMPY_SITE);
         // Import the existing module directly, without loading the legacy package.
         paths.attr("insert")(0, SEAM_LEGACY_ALGORITHMS);
         find_seam_ = py::module_::import("graphcut").attr("find_seam");

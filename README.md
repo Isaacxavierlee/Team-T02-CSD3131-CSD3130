@@ -119,6 +119,9 @@ Each input gets a resized PNG and an original-coordinate overlay per method, plu
 panel. `results.csv` records individual repetitions, stage and total times, seam energy,
 pixel differences and the number of steps that chose a different path from DP.
 
+The [five-photo comparison](evaluation/README.md) includes 90 timing records, visual comparisons
+at both sizes and the commands used to generate them.
+
 ## Original Python pipeline
 
 Isaac's original implementation can be run directly for comparison.

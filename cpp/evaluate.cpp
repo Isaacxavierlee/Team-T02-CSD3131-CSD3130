@@ -1,3 +1,4 @@
+#include "arguments.hpp"
 #include "seam/dp.hpp"
 #include "seam/greedy.hpp"
 #include "seam/resize.hpp"
@@ -32,20 +33,6 @@ struct Options {
     std::vector<fs::path> images;
 };
 
-int number(const std::string& text, bool positive) {
-    std::size_t end = 0;
-    int value;
-    try {
-        value = std::stoi(text, &end);
-    } catch (const std::exception&) {
-        throw std::invalid_argument("Invalid integer: " + text);
-    }
-    if (end != text.size() || value < (positive ? 1 : 0)) {
-        throw std::invalid_argument("Invalid integer: " + text);
-    }
-    return value;
-}
-
 Options parse(int argc, char** argv) {
     Options options;
     for (int i = 1; i < argc; ++i) {
@@ -54,7 +41,7 @@ Options parse(int argc, char** argv) {
             options.graphcut = true;
         } else if (arg == "--out" || arg == "--max-width" || arg == "--cols" || arg == "--rows" ||
                    arg == "--repeats") {
-            if (++i == argc) {
+            if (++i == argc || std::string(argv[i]).rfind("--", 0) == 0) {
                 throw std::invalid_argument("Missing value for " + arg);
             }
             std::string value = argv[i];
@@ -64,13 +51,13 @@ Options parse(int argc, char** argv) {
                 }
                 options.out = value;
             } else if (arg == "--max-width") {
-                options.max_width = number(value, true);
+                options.max_width = seam_app::integer_option(arg, value, 1);
             } else if (arg == "--cols") {
-                options.cols = number(value, false);
+                options.cols = seam_app::integer_option(arg, value, 0);
             } else if (arg == "--rows") {
-                options.rows = number(value, false);
+                options.rows = seam_app::integer_option(arg, value, 0);
             } else {
-                options.repeats = number(value, true);
+                options.repeats = seam_app::integer_option(arg, value, 1);
             }
         } else if (!arg.empty() && arg[0] == '-') {
             throw std::invalid_argument("Unknown option: " + arg);
@@ -183,33 +170,79 @@ void save_panel(const fs::path& path, const Image& input, const std::vector<Meth
     save_image(path, panel);
 }
 
+std::vector<Input> load_inputs(const Options& options) {
+    // Validate every input and target before writing any output.
+    std::vector<Input> inputs;
+    std::set<std::string> stems;
+    for (const auto& path : options.images) {
+        std::string stem = path.stem().string();
+        if (stem.empty() || !stems.insert(stem).second) {
+            throw std::invalid_argument("Empty or duplicate image stem: " + stem);
+        }
+        Image preview = downscale_to_width(read_image(path), options.max_width);
+        if (options.cols >= preview.cols || options.rows >= preview.rows) {
+            throw std::invalid_argument(
+                "Target must retain at least one pixel in each dimension: " + path.string());
+        }
+        inputs.push_back(
+            {path, preview, {preview.cols - options.cols, preview.rows - options.rows}});
+    }
+    return inputs;
+}
+
+void measure_image(const Input& input, const Options& options, const std::vector<Method>& methods,
+                   std::ostream& report) {
+    fs::path folder = options.out / input.path.stem();
+    fs::create_directories(folder);
+    save_image(folder / "input.png", input.preview);
+    std::vector<Result> results;
+    for (const Method& method : methods) {
+        // The tracked pass warms the method and records paths for comparison.
+        results.push_back(run(input.preview, input.target, method.finder, true));
+        const Result& reference = results.back();
+        save_image(folder / (method.name + "_resized.png"), reference.image);
+        save_image(folder / (method.name + "_seams.png"), reference.overlay);
+        double diff = difference(results.front().image, reference.image);
+        std::size_t paths = different_paths(results.front().paths, reference.paths);
+        for (int repetition = 1; repetition <= options.repeats; ++repetition) {
+            // Time an untracked run; image and cost must match the tracked pass.
+            auto start = Clock::now();
+            Result timed = run(input.preview, input.target, method.finder, false);
+            auto end = Clock::now();
+            if (cv::norm(reference.image, timed.image, cv::NORM_INF) != 0 ||
+                reference.stats.seam_cost != timed.stats.seam_cost) {
+                throw std::runtime_error("Inconsistent repeated result for " + method.name);
+            }
+            double total = std::chrono::duration<double, std::milli>(end - start).count();
+            report << csv(input.path.string()) << ',' << input.preview.cols << ','
+                   << input.preview.rows << ',' << input.target.width << ',' << input.target.height
+                   << ',' << csv(method.name) << ',' << csv(method.implementation) << ','
+                   << csv("width-limited INTER_AREA") << ',' << repetition << ','
+                   << timed.stats.energy_ms << ',' << timed.stats.seam_ms << ','
+                   << timed.stats.remove_ms << ',' << total << ',' << timed.stats.seam_cost << ','
+                   << diff << ',' << paths << '\n';
+        }
+    }
+    save_panel(folder / "comparison.png", input.preview, methods, results);
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     try {
-        Options options = parse(argc, argv);
+        if (argc == 2 && std::string(argv[1]) == "--help") {
+            std::cout << "Usage: seam-evaluate [--out DIR] [--max-width N] [--cols N] [--rows N] "
+                         "[--repeats N] [--with-graphcut] IMAGE...\n";
+            return 0;
+        }
+        const Options options = parse(argc, argv);
 #ifndef SEAM_WITH_PYTHON_GRAPHCUT
         if (options.graphcut) {
             throw std::runtime_error(
                 "--with-graphcut requires a build with Python graph-cut support");
         }
 #endif
-        // Validate every input and target before writing any output.
-        std::vector<Input> inputs;
-        std::set<std::string> stems;
-        for (const auto& path : options.images) {
-            std::string stem = path.stem().string();
-            if (stem.empty() || !stems.insert(stem).second) {
-                throw std::invalid_argument("Empty or duplicate image stem: " + stem);
-            }
-            Image preview = downscale_to_width(read_image(path), options.max_width);
-            if (options.cols >= preview.cols || options.rows >= preview.rows) {
-                throw std::invalid_argument(
-                    "Target must retain at least one pixel in each dimension: " + path.string());
-            }
-            inputs.push_back(
-                {path, preview, {preview.cols - options.cols, preview.rows - options.rows}});
-        }
+        const auto inputs = load_inputs(options);
 
 #ifdef SEAM_WITH_PYTHON_GRAPHCUT
         std::unique_ptr<PythonBaseline> baseline;
@@ -234,38 +267,7 @@ int main(int argc, char** argv) {
                   "different_paths_vs_dp\n";
         report << std::fixed << std::setprecision(6);
         for (const Input& input : inputs) {
-            fs::path folder = options.out / input.path.stem();
-            fs::create_directories(folder);
-            save_image(folder / "input.png", input.preview);
-            std::vector<Result> results;
-            for (const Method& method : methods) {
-                // The tracked pass warms the method and records paths for comparison.
-                results.push_back(run(input.preview, input.target, method.finder, true));
-                const Result& reference = results.back();
-                save_image(folder / (method.name + "_resized.png"), reference.image);
-                save_image(folder / (method.name + "_seams.png"), reference.overlay);
-                double diff = difference(results.front().image, reference.image);
-                std::size_t paths = different_paths(results.front().paths, reference.paths);
-                for (int repetition = 1; repetition <= options.repeats; ++repetition) {
-                    // Time an untracked run; image and cost must match the tracked pass.
-                    auto start = Clock::now();
-                    Result timed = run(input.preview, input.target, method.finder, false);
-                    auto end = Clock::now();
-                    if (cv::norm(reference.image, timed.image, cv::NORM_INF) != 0 ||
-                        reference.stats.seam_cost != timed.stats.seam_cost) {
-                        throw std::runtime_error("Inconsistent repeated result for " + method.name);
-                    }
-                    double total = std::chrono::duration<double, std::milli>(end - start).count();
-                    report << csv(input.path.string()) << ',' << input.preview.cols << ','
-                           << input.preview.rows << ',' << input.target.width << ','
-                           << input.target.height << ',' << csv(method.name) << ','
-                           << csv(method.implementation) << ',' << csv("width-limited INTER_AREA")
-                           << ',' << repetition << ',' << timed.stats.energy_ms << ','
-                           << timed.stats.seam_ms << ',' << timed.stats.remove_ms << ',' << total
-                           << ',' << timed.stats.seam_cost << ',' << diff << ',' << paths << '\n';
-                }
-            }
-            save_panel(folder / "comparison.png", input.preview, methods, results);
+            measure_image(input, options, methods, report);
         }
         report.close();
         if (!report) {
