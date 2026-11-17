@@ -29,10 +29,14 @@ py::scoped_interpreter start_interpreter() {
 PythonBaseline::PythonBaseline() : interpreter_(start_interpreter()) {
     try {
         py::list paths = py::module_::import("sys").attr("path");
-        paths.attr("insert")(0, SEAM_NETWORKX_SITE);
-        paths.attr("insert")(0, SEAM_NUMPY_SITE);
-        // Import the existing module directly, without loading the legacy package.
-        paths.attr("insert")(0, SEAM_LEGACY_ALGORITHMS);
+        auto normalise = py::module_::import("os.path").attr("normpath");
+        for (const char* directory : {SEAM_NETWORKX_SITE, SEAM_NUMPY_SITE, SEAM_LEGACY_ALGORITHMS}) {
+            py::object location = normalise(directory);
+            if (paths.contains(location)) {
+                paths.attr("remove")(location);
+            }
+            paths.attr("insert")(0, location);
+        }
         find_seam_ = py::module_::import("graphcut").attr("find_seam");
     } catch (const py::error_already_set& error) {
         throw std::runtime_error(error.what());
