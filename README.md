@@ -14,6 +14,41 @@ cmake --build build/native --config Release --parallel
 ctest --test-dir build/native -C Release --output-on-failure
 ```
 
+## Run the C++ application
+
+From the repository root, double-click `run.bat` on Windows or run `bash run.sh` on Linux
+or macOS. Both launchers build the application and open the demo photo. Pass an image path
+and `--interactive` to open another photo. To call the executable directly, use
+`build/native/Release/seam-carve.exe` with Visual Studio or `build/native/seam-carve` with
+a single-configuration generator.
+
+```sh
+seam-carve data/05_architecture.jpg --interactive --max-width 240
+seam-carve data/03_person.jpg --algo greedy --remove-cols 20 --remove-rows 8 --out output/portrait
+seam-carve data/demo.png --algo dp --order alternate --remove-cols 5 --remove-rows 3 --frames-dir output/steps --video output/steps.mp4
+```
+
+In the window, adjust width, height, algorithm or energy to start a new resize from the input.
+Space pauses or plays, N advances one phase, R restarts, S saves and Q or Escape closes the
+window. Red marks vertical seams and blue marks horizontal seams. Each removal has two phases.
+The first shows the chosen pixels on the current image. The second shows the surviving pixels.
+The original-sized overlay retains the history as the image shrinks.
+
+In batch mode, `--width` and `--height` give exact target dimensions. Alternatively use
+`--remove-cols` or `--remove-rows` on the corresponding axis. `--max-width` prepares a
+smaller input before carving. The output prefix names the resized PNG, seam overlay and energy
+map. `--frames-dir` exports each highlight and removal, and `--video` encodes those phases
+at a fixed display size. Run `seam-carve --help` for the method and energy choices.
+
+The native sources use four-space indentation. One blank line separates stages such as filling
+costs and tracing a seam. Comments explain choices that affect the answer, including tie order,
+border sampling and coordinate tracking. The formatting settings are in `.clang-format`.
+[Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html#Vertical_Whitespace) ·
+[C++ Core Guidelines on comments](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#nl2-state-intent-in-comments) ·
+[LLVM Coding Standards](https://llvm.org/docs/CodingStandards.html#commenting)
+
+## Energy and seam search
+
 The image library loads colour photos and computes energy from Sobel derivatives, finite
 differences or the difference between the two pixels a removal would bring together. Sobel
 replicates edge pixels and sums the absolute horizontal and vertical response over all three
@@ -50,9 +85,7 @@ a higher constant search cost and can still miss a minimum beyond its horizon.
 
 ## Original Python pipeline
 
-**Quick start (Windows):** double-click `run.bat`  (Mac/Linux: `./run.sh`). It updates the code, sets up Python libraries and opens the app.
-
-Command line:
+Isaac's original implementation can be run directly for comparison.
 ```bash
 pip install -r requirements.txt
 python scripts/make_demo_image.py
@@ -74,4 +107,3 @@ pytest -q
 | `seam_carving/algorithms/greedy.py` | Rui | 3 |
 | `seam_carving/algorithms/graphcut.py` | Dexter | 4 |
 | `seam_carving/carver.py`, `evaluate.py`, `tests/` | Fadzly | 1c, 3, 4 comparison |
-| `docs/` | Ranvitha | 2, 5, 8, 9 |

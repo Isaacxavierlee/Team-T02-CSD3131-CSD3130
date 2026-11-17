@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(OpenCV 4 REQUIRED COMPONENTS core imgproc imgcodecs)
+find_package(OpenCV 4 REQUIRED COMPONENTS core imgproc imgcodecs highgui videoio)
 find_package(Threads REQUIRED)
 include(CTest)
 
@@ -38,8 +38,18 @@ endif()
 add_library(seam_greedy cpp/greedy.cpp)
 target_link_libraries(seam_greedy PUBLIC seam_image)
 
+add_executable(seam-carve cpp/app.cpp cpp/studio.cpp)
+target_link_libraries(seam-carve PRIVATE seam_resize seam_dp seam_greedy opencv_highgui opencv_videoio)
+
 if(BUILD_TESTING)
     add_executable(test_greedy tests/cpp/test_greedy.cpp)
     target_link_libraries(test_greedy PRIVATE seam_greedy)
     add_test(NAME greedy_choices COMMAND test_greedy)
+
+    add_test(NAME command_line_resize COMMAND seam-carve "${PROJECT_SOURCE_DIR}/data/demo.png"
+        --algo greedy --order alternate --max-width 44 --remove-cols 3 --remove-rows 2
+        --frames-dir "${PROJECT_BINARY_DIR}/cli-frames" --out "${PROJECT_BINARY_DIR}/cli/result")
+    add_test(NAME conflicting_targets COMMAND seam-carve "${PROJECT_SOURCE_DIR}/data/demo.png"
+        --width 4 --remove-cols 5)
+    set_tests_properties(conflicting_targets PROPERTIES WILL_FAIL TRUE)
 endif()

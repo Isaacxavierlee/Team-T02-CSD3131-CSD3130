@@ -10,3 +10,4 @@ AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 ReflowComments: false
+InsertBraces: true
