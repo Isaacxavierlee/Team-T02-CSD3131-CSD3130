@@ -34,3 +34,12 @@ if(BUILD_TESTING)
     target_link_libraries(test_image PRIVATE seam_image)
     add_test(NAME image_energy COMMAND test_image "${PROJECT_SOURCE_DIR}/data/01_landmark.jpg")
 endif()
+
+add_library(seam_greedy cpp/greedy.cpp)
+target_link_libraries(seam_greedy PUBLIC seam_image)
+
+if(BUILD_TESTING)
+    add_executable(test_greedy tests/cpp/test_greedy.cpp)
+    target_link_libraries(test_greedy PRIVATE seam_greedy)
+    add_test(NAME greedy_choices COMMAND test_greedy)
+endif()

@@ -35,6 +35,19 @@ one signed byte per pixel, plus two rows of doubles (two columns for a horizonta
 `find_dp_full` retains every cumulative cost for inspection. Both versions return the same
 path. The `dp_optimality` test enumerates every legal path on small maps in both directions.
 
+### Greedy seam search
+
+`find_greedy` starts at the first minimum in the entry row, then takes the cheapest reachable
+pixel at each step. For a vertical seam it scans W starting pixels and at most three pixels in
+each of the next H − 1 rows. Search takes Θ(W + H) time and constant workspace beyond the path.
+The horizontal search uses columns as steps. Energy calculation and removal still visit the
+whole image on each resize step.
+
+A local choice can force an expensive later one. The `greedy_choices` test has a zero-cost
+start that leads to three pixels costing 50 each. Starting two columns away costs 1 per step,
+for a total of 4. The optional three-step lookahead finds that route on this fixture. It has
+a higher constant search cost and can still miss a minimum beyond its horizon.
+
 ## Original Python pipeline
 
 **Quick start (Windows):** double-click `run.bat`  (Mac/Linux: `./run.sh`). It updates the code, sets up Python libraries and opens the app.
