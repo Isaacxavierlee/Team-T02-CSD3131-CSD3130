@@ -19,17 +19,20 @@ target_link_libraries(seam_dp PUBLIC seam_image)
 add_library(seam_greedy cpp/greedy.cpp)
 target_link_libraries(seam_greedy PUBLIC seam_image)
 
+add_library(seam_graphcut cpp/graphcut.cpp)
+target_link_libraries(seam_graphcut PUBLIC seam_image)
+
 add_library(seam_resize cpp/resize.cpp)
 target_link_libraries(seam_resize PUBLIC seam_image)
 
 add_executable(seam-carve cpp/app.cpp cpp/studio.cpp)
-target_link_libraries(seam-carve PRIVATE seam_resize seam_dp seam_greedy opencv_highgui opencv_videoio)
+target_link_libraries(seam-carve PRIVATE seam_resize seam_dp seam_greedy seam_graphcut opencv_highgui opencv_videoio)
 
 add_executable(seam-profile cpp/profile.cpp)
 target_link_libraries(seam-profile PRIVATE seam_dp)
 
 add_executable(seam-evaluate cpp/evaluate.cpp)
-target_link_libraries(seam-evaluate PRIVATE seam_resize seam_dp seam_greedy)
+target_link_libraries(seam-evaluate PRIVATE seam_resize seam_dp seam_greedy seam_graphcut)
 
 option(SEAM_WITH_PYTHON_GRAPHCUT "Compare the repository's original Python graph-cut solver" OFF)
 if(SEAM_WITH_PYTHON_GRAPHCUT)

@@ -1,55 +1,55 @@
 image,width,height,target_width,target_height,method,implementation,prep,repetition,energy_ms,search_ms,remove_ms,total_ms,seam_cost,mean_abs_bgr_vs_dp,different_paths_vs_dp
-"data/01_landmark.jpg",48,88,44,85,"dp","C++","width-limited INTER_AREA",1,0.221617,0.077022,0.021843,0.332938,48762.000000,0.000000,0
-"data/01_landmark.jpg",48,88,44,85,"dp","C++","width-limited INTER_AREA",2,0.216984,0.076445,0.022062,0.325560,48762.000000,0.000000,0
-"data/01_landmark.jpg",48,88,44,85,"dp","C++","width-limited INTER_AREA",3,0.193070,0.073735,0.020566,0.291541,48762.000000,0.000000,0
-"data/01_landmark.jpg",48,88,44,85,"greedy","C++","width-limited INTER_AREA",1,0.225715,0.008801,0.024548,0.270634,66132.000000,10.046346,7
-"data/01_landmark.jpg",48,88,44,85,"greedy","C++","width-limited INTER_AREA",2,0.227924,0.007308,0.028498,0.268682,66132.000000,10.046346,7
-"data/01_landmark.jpg",48,88,44,85,"greedy","C++","width-limited INTER_AREA",3,0.239926,0.007704,0.028199,0.280568,66132.000000,10.046346,7
-"data/01_landmark.jpg",48,88,44,85,"graphcut","Python (Dinic)","width-limited INTER_AREA",1,0.542882,1551.937812,0.043255,1552.574203,48762.000000,0.000000,0
-"data/01_landmark.jpg",48,88,44,85,"graphcut","Python (Dinic)","width-limited INTER_AREA",2,0.564466,1557.351064,0.047034,1558.012529,48762.000000,0.000000,0
-"data/01_landmark.jpg",48,88,44,85,"graphcut","Python (Dinic)","width-limited INTER_AREA",3,0.602016,1641.884376,0.047631,1642.584812,48762.000000,0.000000,0
-"data/02_landscape.jpg",48,38,44,35,"dp","C++","width-limited INTER_AREA",1,0.115873,0.033575,0.008870,0.167082,40976.000000,0.000000,0
-"data/02_landscape.jpg",48,38,44,35,"dp","C++","width-limited INTER_AREA",2,0.083603,0.031080,0.007587,0.125130,40976.000000,0.000000,0
-"data/02_landscape.jpg",48,38,44,35,"dp","C++","width-limited INTER_AREA",3,0.085107,0.031676,0.007578,0.127016,40976.000000,0.000000,0
-"data/02_landscape.jpg",48,38,44,35,"greedy","C++","width-limited INTER_AREA",1,0.112970,0.004379,0.010770,0.137865,50214.000000,7.907359,4
-"data/02_landscape.jpg",48,38,44,35,"greedy","C++","width-limited INTER_AREA",2,0.086856,0.003291,0.009370,0.102724,50214.000000,7.907359,4
-"data/02_landscape.jpg",48,38,44,35,"greedy","C++","width-limited INTER_AREA",3,0.205428,0.003511,0.008693,0.220661,50214.000000,7.907359,4
-"data/02_landscape.jpg",48,38,44,35,"graphcut","Python (Dinic)","width-limited INTER_AREA",1,0.412633,233.396111,0.029984,233.886004,40976.000000,0.000000,0
-"data/02_landscape.jpg",48,38,44,35,"graphcut","Python (Dinic)","width-limited INTER_AREA",2,0.456031,239.637012,0.033921,240.172493,40976.000000,0.000000,0
-"data/02_landscape.jpg",48,38,44,35,"graphcut","Python (Dinic)","width-limited INTER_AREA",3,0.439584,250.775079,0.029484,251.288441,40976.000000,0.000000,0
-"data/03_person.jpg",48,72,44,69,"dp","C++","width-limited INTER_AREA",1,0.197463,0.107627,0.019046,0.338376,51820.000000,0.000000,0
-"data/03_person.jpg",48,72,44,69,"dp","C++","width-limited INTER_AREA",2,0.167327,0.062367,0.016503,0.250571,51820.000000,0.000000,0
-"data/03_person.jpg",48,72,44,69,"dp","C++","width-limited INTER_AREA",3,0.262757,0.062648,0.016708,0.346049,51820.000000,0.000000,0
-"data/03_person.jpg",48,72,44,69,"greedy","C++","width-limited INTER_AREA",1,0.190525,0.006855,0.017672,0.226717,98924.000000,11.684563,7
-"data/03_person.jpg",48,72,44,69,"greedy","C++","width-limited INTER_AREA",2,0.160320,0.005358,0.016267,0.185794,98924.000000,11.684563,7
-"data/03_person.jpg",48,72,44,69,"greedy","C++","width-limited INTER_AREA",3,0.161057,0.005428,0.015812,0.185839,98924.000000,11.684563,7
-"data/03_person.jpg",48,72,44,69,"graphcut","Python (Dinic)","width-limited INTER_AREA",1,0.507459,1345.187349,0.042398,1345.790186,51820.000000,0.000000,0
-"data/03_person.jpg",48,72,44,69,"graphcut","Python (Dinic)","width-limited INTER_AREA",2,0.481649,1327.886123,0.037819,1328.449523,51820.000000,0.000000,0
-"data/03_person.jpg",48,72,44,69,"graphcut","Python (Dinic)","width-limited INTER_AREA",3,0.507237,1299.056015,0.036544,1299.644917,51820.000000,0.000000,0
-"data/04_texture.jpg",48,32,44,29,"dp","C++","width-limited INTER_AREA",1,0.178818,0.054224,0.015279,0.260083,79098.000000,0.000000,0
-"data/04_texture.jpg",48,32,44,29,"dp","C++","width-limited INTER_AREA",2,0.095730,0.031229,0.008576,0.139248,79098.000000,0.000000,0
-"data/04_texture.jpg",48,32,44,29,"dp","C++","width-limited INTER_AREA",3,0.079739,0.027561,0.007235,0.117166,79098.000000,0.000000,0
-"data/04_texture.jpg",48,32,44,29,"greedy","C++","width-limited INTER_AREA",1,0.105536,0.004731,0.009071,0.128566,111658.000000,36.115726,7
-"data/04_texture.jpg",48,32,44,29,"greedy","C++","width-limited INTER_AREA",2,0.076760,0.003459,0.007862,0.091166,111658.000000,36.115726,7
-"data/04_texture.jpg",48,32,44,29,"greedy","C++","width-limited INTER_AREA",3,0.077458,0.003317,0.007149,0.090671,111658.000000,36.115726,7
-"data/04_texture.jpg",48,32,44,29,"graphcut","Python (Dinic)","width-limited INTER_AREA",1,0.388005,338.720055,0.028222,339.183038,79098.000000,0.000000,0
-"data/04_texture.jpg",48,32,44,29,"graphcut","Python (Dinic)","width-limited INTER_AREA",2,0.395851,331.798558,0.028898,332.265299,79098.000000,0.000000,0
-"data/04_texture.jpg",48,32,44,29,"graphcut","Python (Dinic)","width-limited INTER_AREA",3,0.408701,336.285905,0.030324,336.768927,79098.000000,0.000000,0
-"data/05_architecture.jpg",48,64,44,61,"dp","C++","width-limited INTER_AREA",1,0.158872,0.052532,0.015047,0.235293,33582.000000,0.000000,0
-"data/05_architecture.jpg",48,64,44,61,"dp","C++","width-limited INTER_AREA",2,0.135549,0.052641,0.014209,0.205843,33582.000000,0.000000,0
-"data/05_architecture.jpg",48,64,44,61,"dp","C++","width-limited INTER_AREA",3,0.139264,0.052558,0.013682,0.209017,33582.000000,0.000000,0
-"data/05_architecture.jpg",48,64,44,61,"greedy","C++","width-limited INTER_AREA",1,0.161749,0.006266,0.014763,0.192203,95484.000000,28.905365,7
-"data/05_architecture.jpg",48,64,44,61,"greedy","C++","width-limited INTER_AREA",2,0.134127,0.004778,0.013970,0.156544,95484.000000,28.905365,7
-"data/05_architecture.jpg",48,64,44,61,"greedy","C++","width-limited INTER_AREA",3,0.136156,0.004730,0.013882,0.158070,95484.000000,28.905365,7
-"data/05_architecture.jpg",48,64,44,61,"graphcut","Python (Dinic)","width-limited INTER_AREA",1,0.500575,885.835637,0.042694,886.434290,33582.000000,0.000000,0
-"data/05_architecture.jpg",48,64,44,61,"graphcut","Python (Dinic)","width-limited INTER_AREA",2,0.502824,916.521179,0.039645,917.111884,33582.000000,0.000000,0
-"data/05_architecture.jpg",48,64,44,61,"graphcut","Python (Dinic)","width-limited INTER_AREA",3,0.478074,898.698949,0.041596,899.265354,33582.000000,0.000000,0
-"data/demo.png",48,32,44,29,"dp","C++","width-limited INTER_AREA",1,0.111674,0.030681,0.009303,0.160108,8352.000000,0.000000,0
-"data/demo.png",48,32,44,29,"dp","C++","width-limited INTER_AREA",2,0.077921,0.028484,0.008404,0.117885,8352.000000,0.000000,0
-"data/demo.png",48,32,44,29,"dp","C++","width-limited INTER_AREA",3,0.077998,0.027952,0.007702,0.116288,8352.000000,0.000000,0
-"data/demo.png",48,32,44,29,"greedy","C++","width-limited INTER_AREA",1,0.118391,0.004958,0.008894,0.142649,21096.000000,10.834639,7
-"data/demo.png",48,32,44,29,"greedy","C++","width-limited INTER_AREA",2,0.076576,0.003307,0.007745,0.090696,21096.000000,10.834639,7
-"data/demo.png",48,32,44,29,"greedy","C++","width-limited INTER_AREA",3,0.078480,0.003338,0.007590,0.092220,21096.000000,10.834639,7
-"data/demo.png",48,32,44,29,"graphcut","Python (Dinic)","width-limited INTER_AREA",1,0.405901,208.338083,0.034101,208.826302,8352.000000,0.000000,0
-"data/demo.png",48,32,44,29,"graphcut","Python (Dinic)","width-limited INTER_AREA",2,0.422131,203.625999,0.027987,204.118291,8352.000000,0.000000,0
-"data/demo.png",48,32,44,29,"graphcut","Python (Dinic)","width-limited INTER_AREA",3,0.564583,217.784262,0.032669,218.430579,8352.000000,0.000000,0
+"data/01_landmark.jpg",48,88,44,85,"dp","C++","width-limited INTER_AREA",1,0.558552,0.192427,0.045538,0.820265,48762.000000,0.000000,0
+"data/01_landmark.jpg",48,88,44,85,"dp","C++","width-limited INTER_AREA",2,0.718729,0.234344,0.055349,1.034979,48762.000000,0.000000,0
+"data/01_landmark.jpg",48,88,44,85,"dp","C++","width-limited INTER_AREA",3,0.597977,0.231342,0.051605,0.895636,48762.000000,0.000000,0
+"data/01_landmark.jpg",48,88,44,85,"greedy","C++","width-limited INTER_AREA",1,0.353389,0.011123,0.030927,0.409321,66132.000000,10.046346,7
+"data/01_landmark.jpg",48,88,44,85,"greedy","C++","width-limited INTER_AREA",2,0.315034,0.010200,0.028172,0.359617,66132.000000,10.046346,7
+"data/01_landmark.jpg",48,88,44,85,"greedy","C++","width-limited INTER_AREA",3,0.307867,0.009841,0.025673,0.349128,66132.000000,10.046346,7
+"data/01_landmark.jpg",48,88,44,85,"graphcut","C++","width-limited INTER_AREA",1,0.446273,314.536104,0.041872,315.064217,48800.000000,0.127807,2
+"data/01_landmark.jpg",48,88,44,85,"graphcut","C++","width-limited INTER_AREA",2,0.515376,323.215078,0.037131,323.802161,48800.000000,0.127807,2
+"data/01_landmark.jpg",48,88,44,85,"graphcut","C++","width-limited INTER_AREA",3,0.443222,316.222236,0.039934,316.737765,48800.000000,0.127807,2
+"data/02_landscape.jpg",48,38,44,35,"dp","C++","width-limited INTER_AREA",1,0.307819,0.100632,0.021575,0.446210,40976.000000,0.000000,0
+"data/02_landscape.jpg",48,38,44,35,"dp","C++","width-limited INTER_AREA",2,0.188916,0.070019,0.014160,0.279418,40976.000000,0.000000,0
+"data/02_landscape.jpg",48,38,44,35,"dp","C++","width-limited INTER_AREA",3,0.210338,0.070288,0.014065,0.300655,40976.000000,0.000000,0
+"data/02_landscape.jpg",48,38,44,35,"greedy","C++","width-limited INTER_AREA",1,0.111779,0.004042,0.008859,0.132000,50214.000000,7.907359,4
+"data/02_landscape.jpg",48,38,44,35,"greedy","C++","width-limited INTER_AREA",2,0.085563,0.003216,0.006873,0.098636,50214.000000,7.907359,4
+"data/02_landscape.jpg",48,38,44,35,"greedy","C++","width-limited INTER_AREA",3,0.085053,0.003205,0.006312,0.097263,50214.000000,7.907359,4
+"data/02_landscape.jpg",48,38,44,35,"graphcut","C++","width-limited INTER_AREA",1,0.246665,31.608987,0.021443,31.895791,41824.000000,2.007359,4
+"data/02_landscape.jpg",48,38,44,35,"graphcut","C++","width-limited INTER_AREA",2,0.195872,30.268178,0.017302,30.495824,41824.000000,2.007359,4
+"data/02_landscape.jpg",48,38,44,35,"graphcut","C++","width-limited INTER_AREA",3,0.161037,29.411446,0.017184,29.601986,41824.000000,2.007359,4
+"data/03_person.jpg",48,72,44,69,"dp","C++","width-limited INTER_AREA",1,0.184380,0.061236,0.016366,0.270541,51820.000000,0.000000,0
+"data/03_person.jpg",48,72,44,69,"dp","C++","width-limited INTER_AREA",2,0.176298,0.068082,0.016060,0.264438,51820.000000,0.000000,0
+"data/03_person.jpg",48,72,44,69,"dp","C++","width-limited INTER_AREA",3,0.159323,0.060197,0.014225,0.237235,51820.000000,0.000000,0
+"data/03_person.jpg",48,72,44,69,"greedy","C++","width-limited INTER_AREA",1,0.186543,0.006065,0.016229,0.218513,98924.000000,11.684563,7
+"data/03_person.jpg",48,72,44,69,"greedy","C++","width-limited INTER_AREA",2,0.386166,0.012873,0.035598,0.443613,98924.000000,11.684563,7
+"data/03_person.jpg",48,72,44,69,"greedy","C++","width-limited INTER_AREA",3,0.340178,0.011618,0.036029,0.395318,98924.000000,11.684563,7
+"data/03_person.jpg",48,72,44,69,"graphcut","C++","width-limited INTER_AREA",1,0.409721,174.366145,0.035727,174.847151,51940.000000,0.298639,5
+"data/03_person.jpg",48,72,44,69,"graphcut","C++","width-limited INTER_AREA",2,0.418182,179.957067,0.036708,180.445878,51940.000000,0.298639,5
+"data/03_person.jpg",48,72,44,69,"graphcut","C++","width-limited INTER_AREA",3,0.405414,176.847795,0.036582,177.324082,51940.000000,0.298639,5
+"data/04_texture.jpg",48,32,44,29,"dp","C++","width-limited INTER_AREA",1,0.115986,0.034112,0.009482,0.168624,79098.000000,0.000000,0
+"data/04_texture.jpg",48,32,44,29,"dp","C++","width-limited INTER_AREA",2,0.089931,0.032224,0.008269,0.133905,79098.000000,0.000000,0
+"data/04_texture.jpg",48,32,44,29,"dp","C++","width-limited INTER_AREA",3,0.089058,0.032088,0.007516,0.131614,79098.000000,0.000000,0
+"data/04_texture.jpg",48,32,44,29,"greedy","C++","width-limited INTER_AREA",1,0.121829,0.005015,0.010556,0.146884,111658.000000,36.115726,7
+"data/04_texture.jpg",48,32,44,29,"greedy","C++","width-limited INTER_AREA",2,0.096666,0.004216,0.009476,0.114212,111658.000000,36.115726,7
+"data/04_texture.jpg",48,32,44,29,"greedy","C++","width-limited INTER_AREA",3,0.093703,0.004183,0.008803,0.110075,111658.000000,36.115726,7
+"data/04_texture.jpg",48,32,44,29,"graphcut","C++","width-limited INTER_AREA",1,0.162155,38.500363,0.017314,38.694901,82640.000000,22.731452,3
+"data/04_texture.jpg",48,32,44,29,"graphcut","C++","width-limited INTER_AREA",2,0.204744,39.909079,0.019024,40.149516,82640.000000,22.731452,3
+"data/04_texture.jpg",48,32,44,29,"graphcut","C++","width-limited INTER_AREA",3,0.200311,39.764446,0.023807,40.008855,82640.000000,22.731452,3
+"data/05_architecture.jpg",48,64,44,61,"dp","C++","width-limited INTER_AREA",1,0.267166,0.089145,0.021992,0.392517,33582.000000,0.000000,0
+"data/05_architecture.jpg",48,64,44,61,"dp","C++","width-limited INTER_AREA",2,0.416791,0.158611,0.035099,0.621050,33582.000000,0.000000,0
+"data/05_architecture.jpg",48,64,44,61,"dp","C++","width-limited INTER_AREA",3,0.188403,0.054087,0.012152,0.258935,33582.000000,0.000000,0
+"data/05_architecture.jpg",48,64,44,61,"greedy","C++","width-limited INTER_AREA",1,0.177481,0.006169,0.016359,0.211043,95484.000000,28.905365,7
+"data/05_architecture.jpg",48,64,44,61,"greedy","C++","width-limited INTER_AREA",2,0.142201,0.004916,0.015084,0.165961,95484.000000,28.905365,7
+"data/05_architecture.jpg",48,64,44,61,"greedy","C++","width-limited INTER_AREA",3,0.143053,0.004781,0.014375,0.165615,95484.000000,28.905365,7
+"data/05_architecture.jpg",48,64,44,61,"graphcut","C++","width-limited INTER_AREA",1,0.351156,68.515166,0.030778,68.927022,33582.000000,0.000000,0
+"data/05_architecture.jpg",48,64,44,61,"graphcut","C++","width-limited INTER_AREA",2,0.378666,69.337586,0.028138,69.772251,33582.000000,0.000000,0
+"data/05_architecture.jpg",48,64,44,61,"graphcut","C++","width-limited INTER_AREA",3,0.320512,71.473131,0.031899,71.854677,33582.000000,0.000000,0
+"data/demo.png",48,32,44,29,"dp","C++","width-limited INTER_AREA",1,0.099282,0.028886,0.009346,0.145703,8352.000000,0.000000,0
+"data/demo.png",48,32,44,29,"dp","C++","width-limited INTER_AREA",2,0.072457,0.026979,0.006742,0.108906,8352.000000,0.000000,0
+"data/demo.png",48,32,44,29,"dp","C++","width-limited INTER_AREA",3,0.073575,0.025509,0.006140,0.107692,8352.000000,0.000000,0
+"data/demo.png",48,32,44,29,"greedy","C++","width-limited INTER_AREA",1,0.097775,0.003985,0.008372,0.116977,21096.000000,10.834639,7
+"data/demo.png",48,32,44,29,"greedy","C++","width-limited INTER_AREA",2,0.074376,0.003183,0.006811,0.087562,21096.000000,10.834639,7
+"data/demo.png",48,32,44,29,"greedy","C++","width-limited INTER_AREA",3,0.074115,0.003204,0.006536,0.086398,21096.000000,10.834639,7
+"data/demo.png",48,32,44,29,"graphcut","C++","width-limited INTER_AREA",1,0.188679,15.374134,0.016638,15.593447,8356.000000,0.006792,3
+"data/demo.png",48,32,44,29,"graphcut","C++","width-limited INTER_AREA",2,0.169843,14.890747,0.016393,15.088170,8356.000000,0.006792,3
+"data/demo.png",48,32,44,29,"graphcut","C++","width-limited INTER_AREA",3,0.115109,16.077189,0.015511,16.216641,8356.000000,0.006792,3

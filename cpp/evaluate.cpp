@@ -2,6 +2,7 @@
 #include "seam/dp.hpp"
 #include "seam/greedy.hpp"
 #include "seam/resize.hpp"
+#include "seam/graphcut.hpp"
 
 #ifdef SEAM_WITH_PYTHON_GRAPHCUT
 #include "python_baseline.hpp"
@@ -251,6 +252,21 @@ int main(int argc, char** argv) {
         }
 #endif
         std::vector<Method> methods{{"dp", "C++", find_dp}, {"greedy", "C++", find_greedy}};
+        
+        methods.push_back({"graphcut", "C++", [&](const EnergyView& view) {
+            int H = view.steps();
+            int W = view.positions();
+            
+            std::vector<std::vector<double>> energy_matrix(H, std::vector<double>(W));
+            for (int r = 0; r < H; ++r) {
+                for (int c = 0; c < W; ++c) {
+                    energy_matrix[r][c] = view(r, c);
+                }
+            }
+            GraphCutSeamCarver gc;
+            return gc.find_vertical_seam(energy_matrix);
+        }});
+
 #ifdef SEAM_WITH_PYTHON_GRAPHCUT
         if (baseline) {
             methods.push_back({"graphcut", "Python (Dinic)",
