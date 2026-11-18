@@ -1,4 +1,4 @@
-#include "seam/graphcut.hpp"
+#include "graphcut.hpp"
 #include <queue>
 #include <algorithm>
 #include <cmath>

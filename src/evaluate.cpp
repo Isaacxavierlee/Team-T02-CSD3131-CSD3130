@@ -1,8 +1,8 @@
 #include "arguments.hpp"
-#include "seam/dp.hpp"
-#include "seam/greedy.hpp"
-#include "seam/resize.hpp"
-#include "seam/graphcut.hpp"
+#include "dp.hpp"
+#include "greedy.hpp"
+#include "resize.hpp"
+#include "graphcut.hpp"
 
 #include <opencv2/imgproc.hpp>
 

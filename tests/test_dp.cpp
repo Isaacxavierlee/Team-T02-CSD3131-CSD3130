@@ -1,5 +1,5 @@
 #include "check.hpp"
-#include "seam/dp.hpp"
+#include "dp.hpp"
 
 #include <algorithm>
 #include <cmath>

@@ -1,4 +1,4 @@
-#include "seam/image.hpp"
+#include "image.hpp"
 
 #include <algorithm>
 #include <cmath>

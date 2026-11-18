@@ -1,6 +1,6 @@
 #include "check.hpp"
-#include "seam/graphcut.hpp"
-#include "seam/image.hpp"
+#include "graphcut.hpp"
+#include "image.hpp"
 
 #include <algorithm>
 #include <cmath>

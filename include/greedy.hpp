@@ -1,6 +1,6 @@
 #pragma once
 
-#include "seam/image.hpp"
+#include "image.hpp"
 
 namespace seam {
 

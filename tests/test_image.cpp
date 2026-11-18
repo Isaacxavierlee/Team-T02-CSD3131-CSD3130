@@ -1,5 +1,5 @@
 #include "check.hpp"
-#include "seam/image.hpp"
+#include "image.hpp"
 
 #include <opencv2/core.hpp>
 

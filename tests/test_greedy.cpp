@@ -1,5 +1,5 @@
 #include "check.hpp"
-#include "seam/greedy.hpp"
+#include "greedy.hpp"
 
 #include <algorithm>
 #include <cmath>

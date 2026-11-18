@@ -1,4 +1,4 @@
-#include "seam/greedy.hpp"
+#include "greedy.hpp"
 
 #include <algorithm>
 

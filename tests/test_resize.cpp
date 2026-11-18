@@ -1,6 +1,6 @@
 #include "check.hpp"
-#include "seam/dp.hpp"
-#include "seam/resize.hpp"
+#include "dp.hpp"
+#include "resize.hpp"
 
 #include <array>
 #include <vector>

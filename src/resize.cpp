@@ -1,4 +1,4 @@
-#include "seam/resize.hpp"
+#include "resize.hpp"
 
 #include <algorithm>
 #include <chrono>

@@ -87,12 +87,12 @@ evaluation/dp-memory-and-sobel-threading.csv records DP time and buffer size for
 
 Source files:
 
-- cpp/image.cpp computes energy maps and handles images.
-- cpp/dp.cpp, cpp/greedy.cpp and cpp/graphcut.cpp find seams.
-- cpp/resize.cpp validates, highlights and removes seams.
-- cpp/studio.cpp implements the interactive viewer.
-- cpp/evaluate.cpp runs the comparison and writes its results.
-- tests/cpp contains the C++ unit tests.
+- src/image.cpp computes energy maps and handles images.
+- src/dp.cpp, src/greedy.cpp and src/graphcut.cpp find seams.
+- src/resize.cpp validates, highlights and removes seams.
+- src/studio.cpp implements the interactive viewer.
+- src/evaluate.cpp runs the comparison and writes its results.
+- tests/ contains the C++ unit tests.
 
 The .github/workflows/ci.yml workflow builds and tests on Linux and Windows.
 It also uploads example outputs and a Windows executable package.

@@ -1,8 +1,8 @@
 #include "app.hpp"
 
 #include "arguments.hpp"
-#include "seam/dp.hpp"
-#include "seam/greedy.hpp"
+#include "dp.hpp"
+#include "greedy.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cstdlib>

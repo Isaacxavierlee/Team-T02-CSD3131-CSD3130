@@ -1,6 +1,6 @@
 #pragma once
 
-#include "seam/resize.hpp"
+#include "resize.hpp"
 
 #include <filesystem>
 #include <string>
