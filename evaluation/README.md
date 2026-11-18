@@ -27,7 +27,7 @@ The landscape outputs are closer, with a mean absolute channel difference of 1.7
 
 ## Reproduce the measurements
 
-Use the optional graph-cut comparison build in the [project instructions](../README.md).
+Use the optional graph-cut comparison build in the [project instructions](../README.txt).
 From the repository root, run these commands in PowerShell.
 
 ```powershell

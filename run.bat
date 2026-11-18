@@ -19,6 +19,6 @@ if errorlevel 1 goto :fail
 exit /b 0
 
 :fail
-echo Check the C++ and OpenCV setup in README.md.
+echo Check the C++ and OpenCV setup in README.txt.
 if "%~1"=="" pause
 exit /b 1

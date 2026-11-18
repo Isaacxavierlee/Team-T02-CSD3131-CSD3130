@@ -62,7 +62,7 @@ jobs:
           Copy-Item evaluation $package -Recurse
           Copy-Item "$sdk/etc/licenses" $package -Recurse
           Copy-Item build/deps/opencv/LICENSE*.txt "$package/licenses"
-          Copy-Item README.md $package
+          Copy-Item README.txt $package
           Push-Location $package
           try {
               .\seam-carve.exe data/demo.png --remove-cols 2 --out ..\package-check\demo
