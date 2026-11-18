@@ -1,50 +1,61 @@
-# Five-photo resize comparison
+# C++ seam-carving comparison
 
-Each of the five repository JPEGs was prepared at two widths with its aspect ratio preserved.
-At width 48 we removed four columns and three rows. At width 80 we removed eight columns and
-six rows. All methods used the same decoded input, Sobel energy and vertical-first order.
-Each case has one untimed pass for the pictures and three timed passes, for 90 timing records.
-The raw measurements are in [width 48](width-48/results.csv) and [width 80](width-80/results.csv).
+The [C++ results CSV](graphcut_results/eval/results.csv) contains 5 photographs
+and the synthetic demo. Each image was reduced proportionally to a width of 48
+pixels using OpenCV's area resampling. DP, greedy and graph cut used Sobel
+energy and removed 4 columns followed by 3 rows.
 
-## Results at width 80
+For each method and image, the evaluator ran an untimed pass to record the
+images and seam paths, followed by 3 timed passes. The CSV contains 54
+timed records. Each photograph in the table links to its saved comparison panel.
 
-Times are median wall-clock milliseconds for the complete resize. The last column is the sum
-of the Sobel energies removed by native DP and greedy, respectively.
+## 5-photo results
 
-| Photo | Resize | DP C++ (ms) | Greedy C++ (ms) | Graph cut Python (ms) | DP / greedy energy |
-|---|---|---:|---:|---:|---:|
-| [Landmark](width-80/01_landmark.png) | 80 × 147 → 72 × 141 | 1.489 | 1.072 | 20,926.630 | 134,346 / 203,852 |
-| [Landscape](width-80/02_landscape.png) | 80 × 64 → 72 × 58 | 0.666 | 0.497 | 4,094.785 | 87,824 / 103,408 |
-| [Portrait](width-80/03_person.png) | 80 × 120 → 72 × 114 | 1.369 | 1.042 | 17,145.767 | 127,898 / 254,444 |
-| [Texture](width-80/04_texture.png) | 80 × 53 → 72 × 47 | 0.582 | 0.569 | 3,783.167 | 242,300 / 347,682 |
-| [Architecture](width-80/05_architecture.png) | 80 × 107 → 72 × 101 | 1.048 | 0.758 | 8,582.903 | 86,526 / 321,096 |
+Times are the median complete-resize time in milliseconds. Energy is the sum
+of the 7 removed seams on their respective changing energy maps.
 
-DP and graph cut chose identical paths and produced identical pixels in all ten photo/size
-cases. Greedy removed more energy in every case. The architecture overlay shows several greedy
-horizontal seams crossing the window grid. DP's horizontal seams run mostly through the sky.
-In the portrait, greedy crosses the eyes while DP's horizontal seams stay above the face.
-The landscape outputs are closer, with a mean absolute channel difference of 1.76 on a 0–255 scale.
+| Photo | Input | Target | DP (ms) | Greedy (ms) | Graph cut (ms) | DP energy | Greedy energy | Graph-cut energy |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| [Landmark](graphcut_results/eval/01_landmark/comparison.png) | 48 × 88 | 44 × 85 | 0.896 | 0.360 | 316.738 | 48,762 | 66,132 | 48,800 |
+| [Landscape](graphcut_results/eval/02_landscape/comparison.png) | 48 × 38 | 44 × 35 | 0.301 | 0.099 | 30.496 | 40,976 | 50,214 | 41,824 |
+| [Portrait](graphcut_results/eval/03_person/comparison.png) | 48 × 72 | 44 × 69 | 0.264 | 0.395 | 177.324 | 51,820 | 98,924 | 51,940 |
+| [Texture](graphcut_results/eval/04_texture/comparison.png) | 48 × 32 | 44 × 29 | 0.134 | 0.114 | 40.009 | 79,098 | 111,658 | 82,640 |
+| [Architecture](graphcut_results/eval/05_architecture/comparison.png) | 48 × 64 | 44 × 61 | 0.393 | 0.166 | 69.772 | 33,582 | 95,484 | 33,582 |
 
-## Reproduce the measurements
+Greedy removed more energy than DP on all 5 photos. Graph cut matched all
+7 DP paths on architecture and recorded a higher total cost on the other
+4. The graph-cut implementation connects the final column directly to the
+sink without pricing that column, so it can miss a cheaper boundary seam.
+The initial CSV does not record the hardware or compiler used for this run.
+Treat its times as measurements of that run rather than universal rankings.
 
-Use the optional graph-cut comparison build in the [project instructions](../README.txt).
-From the repository root, run these commands in PowerShell.
+The evaluator reports energy calculation, seam search, removal and total time.
+The timed passes exclude image loading, preview preparation, overlay recording
+and file output. Total time also includes session setup and validation. The
+untimed pass records original-coordinate overlays and paths. Red marks
+vertical seams and blue marks horizontal seams. `different_paths_vs_dp`
+counts steps whose path differs from DP in that step's current image.
+
+## Run the comparison
+
+Build the project using the [project instructions](../README.txt), then run:
 
 ```powershell
-$photos = Get-ChildItem data -Filter '*.jpg' | Sort-Object Name | ForEach-Object { "data/$($_.Name)" }
-$evaluator = '.\build\compare\Release\seam-evaluate.exe'
-& $evaluator --with-graphcut --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/compare-48 @photos
-& $evaluator --with-graphcut --max-width 80 --cols 8 --rows 6 --repeats 3 --out output/compare-80 @photos
+$photos = @(Get-ChildItem data -Filter '*.jpg' | Sort-Object Name | ForEach-Object { $_.FullName })
+.\build\native\Release\seam-evaluate.exe --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/compare-48 @photos data/demo.png
 ```
 
-The recorded build used Windows x64, a Core i7-13700HX, MSVC 19.44 Release, OpenCV 4.12,
-Python 3.9.13 and NumPy 2.0.2. DP and greedy run in C++. The comparison calls the repository's
-existing Python Dinic solver from the same C++ resize loop. Its search time includes transfer
-of the energy map and returned seam across the language boundary. Interpreter startup, reading
-images, preparing previews, painting overlays and writing files occur outside timed passes.
+The paths, dimensions, seam costs and pixel differences in the saved C++
+results were reproduced with the current evaluator. Timing values will vary.
 
-The CSV stage times measure energy calculation, seam search and pixel removal. Total time also
-includes session setup, validation and accounting. The evaluator checks that each timed pass
-reproduces its recorded image and cost. `different_paths_vs_dp` counts removal steps where
-the two paths differ in the coordinates of that step's current image. The overlays instead
-mark all removals on the original preview. Red indicates a vertical seam and blue a horizontal seam.
+## Earlier comparisons
+
+The [width-48](width-48/results.csv) and [width-80](width-80/results.csv)
+records used C++ DP and greedy with a Python Dinic graph-cut implementation.
+They are historical measurements from the earlier pipeline. Their graph-cut
+timings and paths describe that implementation and include transfer through
+the Python bridge. The corresponding panels are in those folders.
+
+The separate [DP profile](dp-profile.csv) records 5 repetitions for the
+rolling and full DP buffers and the Sobel worker configurations. The reported
+DP bytes count the cost and parent buffers, rather than total process memory.

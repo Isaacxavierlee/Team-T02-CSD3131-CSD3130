@@ -1,48 +1,39 @@
 TEAM T02 - IMAGE RESIZING BY SEAM CARVING
 =========================================
 
-This guide is for the marker or any reader who wants to run the project and
-understand what is being compared. The root folder also contains
-scriptsreadme.txt, which is the team's presentation script.
+The project uses C++17 and OpenCV 4 to reduce image width and height by
+removing low-energy seams. It implements dynamic programming (DP), greedy
+search and graph cut. The interactive viewer provides DP and greedy variants.
+The command-line evaluator compares all 3 C++ methods on the same input.
 
-PROJECT SCOPE
+The project report is Seam-Carving-Report.docx. The saved comparisons and their
+measurements are described in evaluation/README.md.
 
-The native application uses C++17, CMake and OpenCV 4. It implements dynamic
-programming (DP), greedy seam finding, energy computation, repeated removal,
-live resizing and step-by-step playback. An optional C++ evaluator calls the
-Python Dinic graph-cut implementation through pybind11. A separate original
-Python pipeline is also present. The native graphical app offers DP and greedy
-variants. Graph cut runs through the optional evaluator or Python pipeline.
+1. RUN THE WINDOWS APPLICATION
 
-1. FASTEST WAY TO TRY THE WINDOWS APPLICATION
-
-1. Open the repository's Actions page. Choose a successful CI run on the
-   desired commit and download the artifact named SeamCarving-Windows-x64.
-   GitHub may require you to sign in, and artifacts expire. One verified
-   successful run for commit 5f3375b is:
-   https://github.com/Isaacxavierlee/Team-T02-CSD3131-CSD3130/actions/runs/44263568971
-2. Extract the entire artifact. Keep seam-carve.exe, the OpenCV DLLs and data
-   folder together. Open PowerShell in the extracted folder.
-3. Open the architecture example with a known input and target:
+The Windows CI job packages the executable, OpenCV DLLs and example images in
+the SeamCarving-Windows-x64 GitHub Actions artifact. Download the artifact from
+a successful run for the revision you want to use and extract it. From a
+PowerShell terminal in the extracted folder, run:
 
    .\seam-carve.exe data/05_architecture.jpg --interactive --max-width 80 --width 72 --height 101
 
-4. In the window, width, height, algorithm and energy sliders restart the
-   resize from the original prepared input. Space plays or pauses. N advances
-   one phase, R restarts, S saves, and Q or Escape exits. Red marks vertical
-   seams and blue marks horizontal seams. Each seam is highlighted before
-   the next phase removes it. The left view accumulates seams on the original.
+The width, height, algorithm and energy sliders restart the resize from the
+prepared input. Space plays or pauses, N advances 1 phase, R restarts,
+S saves, and Q or Escape exits. Each seam is highlighted before removal.
+Red marks vertical seams and blue marks horizontal seams. The left view shows
+all removed seams on the original image. The right view shows the current
+image. Use --help for the command-line options.
 
-The executable's default window uses data/demo.png when launched with no
-arguments. A small --max-width is useful because each removal recalculates the
-energy map. Press S to save the current result, overlay and energy image under
-the default output/result prefix. Use --help for other command-line options.
-
-2. BUILD THE C++ PROJECT FROM SOURCE ON WINDOWS
+2. BUILD FROM SOURCE ON WINDOWS
 
 Install Visual Studio 2022 with Desktop development with C++, CMake, and the
-OpenCV 4 development SDK. Extract OpenCV, for example to C:\opencv. In a
-PowerShell terminal at the repository root, adjust these paths for your SDK:
+OpenCV 4 Windows SDK. The CI workflow uses OpenCV 4.12.0:
+
+   https://github.com/opencv/opencv/releases/tag/4.12.0
+
+Extract the SDK to C:\, which creates C:\opencv, or adjust the paths below.
+Run these commands from the repository root in PowerShell:
 
    $env:OpenCV_DIR = 'C:/opencv/build'
    $env:PATH = 'C:\opencv\build\x64\vc16\bin;' + $env:PATH
@@ -51,63 +42,59 @@ PowerShell terminal at the repository root, adjust these paths for your SDK:
    ctest --test-dir build/native -C Release --output-on-failure
    .\build\native\Release\seam-carve.exe data/05_architecture.jpg --interactive --max-width 80 --width 72 --height 101
 
-Use the bin directory shipped with the OpenCV SDK if it differs from the
-example. The OpenCV_DIR folder must contain OpenCVConfig.cmake. The OpenCV
-DLLs must be on PATH for the executable and tests to run. run.bat is an
-alternative launcher after the dependencies are available.
+OpenCV_DIR must point to the folder containing OpenCVConfig.cmake. Its DLL
+folder must be on PATH when running the executables and tests. run.bat can also
+configure, build and launch seam-carve when the SDK is available.
 
-For a batch output with DP, including the two playback phases for each seam:
+To produce a batch result and individual highlight and removal frames:
 
    .\build\native\Release\seam-carve.exe data/demo.png --algo dp --max-width 80 --remove-cols 4 --remove-rows 3 --frames-dir output/steps --out output/demo
 
-The output prefix produces a resized PNG, a seam-overlay PNG and an energy
-image. The steps folder contains highlighted and removed frames. A --video
-FILE option is available if a compatible video encoder is installed.
+The output prefix produces the resized PNG, an overlay and an energy image.
+The frames folder contains 2 images per removed seam. A --video FILE option
+is available when a compatible video encoder is installed.
 
-3. REPRODUCE THE THREE-METHOD COMPARISON
+3. COMPARE THE ALGORITHMS
 
-This optional build needs the same C++ dependencies plus Python 3 with
-development headers, NumPy, NetworkX and pybind11. Install the packages using
-the same Python interpreter passed to CMake:
+After building, evaluate the 5 photographs with the same Sobel energy map
+and vertical-first removal order:
 
-   python -m pip install numpy networkx pybind11
-   cmake -S . -B build/compare -G "Visual Studio 17 2022" -A x64 -DOpenCV_DIR="$env:OpenCV_DIR" -DSEAM_WITH_PYTHON_GRAPHCUT=ON
-   cmake --build build/compare --config Release --parallel
-   ctest --test-dir build/compare -C Release --output-on-failure
-   .\build\compare\Release\seam-evaluate.exe --with-graphcut --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/eval data/05_architecture.jpg
+   $photos = @(Get-ChildItem data -Filter '*.jpg' | Sort-Object Name | ForEach-Object { $_.FullName })
+   .\build\native\Release\seam-evaluate.exe --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/eval @photos
 
-If CMake selects the wrong Python, add
-  -DPython3_EXECUTABLE=C:/path/to/the/same/python.exe
-to the configure command. The evaluator writes the input, outputs, original-
-coordinate seam overlays, a comparison panel and results.csv beneath output/eval.
-The graph-cut comparison calls seam_carving/algorithms/graphcut.py through
-cpp/python_baseline.cpp. The separate seam_carving/graphcut.py is not selected
-by this bridge. The timed graph-cut pass includes conversion and transfer
-through the Python bridge. Python interpreter startup is excluded.
+For each image the evaluator writes the prepared input, the resized image and
+seam overlay for each method, and a comparison panel. results.csv records
+dimensions, timings, total seam energy, pixel differences and differing paths
+against DP. Timings depend on the machine and build.
 
-4. READ THE RESULTS AND IMPLEMENTATION
+4. TESTS AND RESULTS
 
-- evaluation/README.md explains the recorded experiment and its environment.
-  evaluation/width-48/ and evaluation/width-80/ contain comparison images and
-  the raw CSV records. At each size five images were evaluated, with three
-  timed repetitions per method after an untimed tracked pass.
-- evaluation/dp-profile.csv contains the DP buffer and Sobel worker profiling.
-- cpp/image.cpp handles image loading and energy maps. cpp/dp.cpp and
-  cpp/greedy.cpp implement the native seam finders. cpp/resize.cpp validates
-  and removes seams. cpp/studio.cpp contains the interactive window.
-- seam_carving/algorithms/graphcut.py constructs the graph and solves its
-  minimum cut. cpp/python_baseline.cpp connects it to the optional evaluator.
-- tests/cpp/ and tests/test_all.py contain correctness checks. The default
-  Windows build tests the native code. The optional comparison build adds
-  graph-cut checks. The GitHub workflow contains separate Windows, native
-  Linux and Python jobs in .github/workflows/ci.yml.
+CTest runs 7 checks: resize_playback, evaluate_photo, dp_optimality,
+image_energy, greedy_choices, command_line_resize and conflicting_targets.
+The DP test compares both vertical and horizontal seams with exhaustive
+enumeration on small maps. The greedy test checks its local choices. The
+evaluator test runs all 3 methods and checks repeatability. It does not
+establish graph-cut optimality.
 
-Interpret timing as a measurement of these implementations on the reported
-machine. Greedy, DP and graph cut are fed the same Sobel energy for the saved
-comparison. Graph cut is Python while the other two are C++. A low-energy
-seam is not a guarantee of perceived visual quality, so inspect the images
-and overlays alongside the numbers.
+The current graph-cut implementation uses Edmonds-Karp. Its last image
+column connects directly to the sink without an energy-weighted edge, so a
+lowest-energy boundary seam can be missed. The report gives a concrete
+counterexample and the saved 5-photo results.
 
-The assignment report and recording link are separate submission items. For a
-specific submission, compare the report's descriptions and figures against
-the exact commit and evaluation outputs being submitted.
+The raw C++ comparison is in evaluation/graphcut_results/eval/results.csv.
+The corresponding panels and resized images are in the same directory.
+evaluation/dp-profile.csv contains the DP storage and Sobel worker experiment.
+The older width-48 and width-80 comparisons used a Python graph-cut solver.
+They are retained as historical results and labelled in evaluation/README.md.
+
+Source files:
+
+- cpp/image.cpp computes energy maps and handles images.
+- cpp/dp.cpp, cpp/greedy.cpp and cpp/graphcut.cpp find seams.
+- cpp/resize.cpp validates, highlights and removes seams.
+- cpp/studio.cpp implements the interactive viewer.
+- cpp/evaluate.cpp runs the comparison and writes its results.
+- tests/cpp contains the C++ unit tests.
+
+The .github/workflows/ci.yml workflow builds and tests on Linux and Windows.
+It also uploads example outputs and a Windows executable package.
