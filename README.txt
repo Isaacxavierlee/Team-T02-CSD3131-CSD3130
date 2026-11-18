@@ -51,7 +51,9 @@ To produce a batch result and individual highlight and removal frames:
    .\build\native\Release\seam-carve.exe data/demo.png --algo dp --max-width 80 --remove-cols 4 --remove-rows 3 --frames-dir output/steps --out output/demo
 
 The output prefix produces the resized PNG, an overlay and an energy image.
-The frames folder contains 2 images per removed seam. A --video FILE option
+The frames folder contains a highlight and a removal frame per seam, or the
+original frame if no seams are removed. Reusing the folder replaces its old
+numbered playback frames and leaves other files alone. A --video FILE option
 is available when a compatible video encoder is installed.
 
 3. COMPARE THE ALGORITHMS

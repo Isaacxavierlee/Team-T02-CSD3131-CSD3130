@@ -4,6 +4,7 @@
 #include "dp.hpp"
 #include "greedy.hpp"
 #include <algorithm>
+#include <charconv>
 #include <chrono>
 #include <cstdlib>
 #include <iomanip>
@@ -147,6 +148,29 @@ Options parse(int argc, char** argv) {
     return options;
 }
 
+namespace {
+
+std::string frame_name(int step, const char* stage) {
+    std::ostringstream name;
+    name << "step_" << std::setfill('0') << std::setw(6) << step << '_' << stage << ".png";
+    return name.str();
+}
+
+bool is_obsolete_frame(const std::string& name, int last_step) {
+    if (name == "step_000000_original.png") {
+        return last_step > 0;
+    }
+    if (name.compare(0, 5, "step_") != 0) {
+        return false;
+    }
+    int step = 0;
+    const auto parsed = std::from_chars(name.data() + 5, name.data() + name.size(), step);
+    return parsed.ec == std::errc{} && step > last_step &&
+           (name == frame_name(step, "highlighted") || name == frame_name(step, "removed"));
+}
+
+} // namespace
+
 void batch(const Options& options, const Image& source, cv::Size target) {
     const auto start = std::chrono::steady_clock::now();
     ResizeSession session(source, target, finder(options.algo), options.energy, options.order,
@@ -167,9 +191,7 @@ void batch(const Options& options, const Image& source, cv::Size target) {
     int step = 0;
     auto frame = [&](const Image& image, const char* stage) {
         if (!options.frames.empty()) {
-            std::ostringstream name;
-            name << "step_" << std::setfill('0') << std::setw(6) << step << '_' << stage << ".png";
-            save_image(options.frames / name.str(), image);
+            save_image(options.frames / frame_name(step, stage), image);
         }
         if (video.isOpened()) {
             Image padded(canvas, cv::Vec3b(0, 0, 0));
@@ -196,6 +218,15 @@ void batch(const Options& options, const Image& source, cv::Size target) {
     const double elapsed =
         std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
     save_outputs(options, source, session);
+    if (!options.frames.empty()) {
+        // Remove leftover playback frames after the new images are saved.
+        for (const auto& entry : fs::directory_iterator(options.frames)) {
+            if (is_obsolete_frame(entry.path().filename().u8string(), step) &&
+                fs::is_regular_file(entry.symlink_status())) {
+                fs::remove(entry.path());
+            }
+        }
+    }
     const Stats& stats = session.stats();
     std::cout << "Elapsed " << elapsed << " ms; energy " << stats.energy_ms << " ms; search "
               << stats.seam_ms << " ms; removal " << stats.remove_ms << " ms; seams "

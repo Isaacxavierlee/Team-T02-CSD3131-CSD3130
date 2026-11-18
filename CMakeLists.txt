@@ -58,9 +58,9 @@ if(BUILD_TESTING)
     target_link_libraries(test_greedy PRIVATE seam_greedy)
     add_test(NAME greedy_choices COMMAND test_greedy)
 
-    add_test(NAME command_line_resize COMMAND seam-carve "${PROJECT_SOURCE_DIR}/data/demo.png"
-        --algo greedy --order alternate --max-width 44 --remove-cols 3 --remove-rows 2
-        --frames-dir "${PROJECT_BINARY_DIR}/cli-frames" --out "${PROJECT_BINARY_DIR}/cli/result")
+    add_test(NAME command_line_resize COMMAND "${CMAKE_COMMAND}"
+        "-DAPP=$<TARGET_FILE:seam-carve>" "-DINPUT=${PROJECT_SOURCE_DIR}/data/demo.png"
+        "-DWORK=${PROJECT_BINARY_DIR}" -P "${PROJECT_SOURCE_DIR}/tests/test_cli_resize.cmake")
     add_test(NAME conflicting_targets COMMAND seam-carve "${PROJECT_SOURCE_DIR}/data/demo.png"
         --width 4 --remove-cols 5)
     set_tests_properties(conflicting_targets PROPERTIES WILL_FAIL TRUE)

@@ -1,5 +1,6 @@
 #include "app.hpp"
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <memory>
 #include <opencv2/highgui.hpp>
@@ -136,7 +137,7 @@ int studio(const Options& initial, const Image& source, cv::Size target) {
         if (options.smoke && std::chrono::steady_clock::now() - started > std::chrono::seconds(5)) {
             throw std::runtime_error("GUI smoke test did not complete slider and seam transitions");
         }
-        int key = cv::waitKey(30) & 0xff;
+        const int key = std::tolower(cv::waitKey(30) & 0xff);
         if (key == 27 || key == 'q') {
             break;
         }
@@ -157,7 +158,9 @@ int studio(const Options& initial, const Image& source, cv::Size target) {
             break;
         }
     }
-    cv::destroyWindow(window);
+    if (cv::getWindowProperty(window, cv::WND_PROP_VISIBLE) >= 1) {
+        cv::destroyWindow(window);
+    }
     if (options.smoke && !(saw_change && saw_highlight && saw_removal)) {
         throw std::runtime_error("The window closed before the slider and seam checks finished");
     }
