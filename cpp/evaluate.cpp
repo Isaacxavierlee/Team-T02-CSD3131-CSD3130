@@ -4,10 +4,6 @@
 #include "seam/resize.hpp"
 #include "seam/graphcut.hpp"
 
-#ifdef SEAM_WITH_PYTHON_GRAPHCUT
-#include "python_baseline.hpp"
-#endif
-
 #include <opencv2/imgproc.hpp>
 
 #include <algorithm>
@@ -16,7 +12,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -30,7 +25,6 @@ using Clock = std::chrono::steady_clock;
 struct Options {
     fs::path out = "output/eval";
     int max_width = 48, cols = 4, rows = 3, repeats = 3;
-    bool graphcut = false;
     std::vector<fs::path> images;
 };
 
@@ -38,10 +32,8 @@ Options parse(int argc, char** argv) {
     Options options;
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        if (arg == "--with-graphcut") {
-            options.graphcut = true;
-        } else if (arg == "--out" || arg == "--max-width" || arg == "--cols" || arg == "--rows" ||
-                   arg == "--repeats") {
+        if (arg == "--out" || arg == "--max-width" || arg == "--cols" || arg == "--rows" ||
+            arg == "--repeats") {
             if (++i == argc || std::string(argv[i]).rfind("--", 0) == 0) {
                 throw std::invalid_argument("Missing value for " + arg);
             }
@@ -233,27 +225,15 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::string(argv[1]) == "--help") {
             std::cout << "Usage: seam-evaluate [--out DIR] [--max-width N] [--cols N] [--rows N] "
-                         "[--repeats N] [--with-graphcut] IMAGE...\n";
+                         "[--repeats N] IMAGE...\n";
             return 0;
         }
         const Options options = parse(argc, argv);
-#ifndef SEAM_WITH_PYTHON_GRAPHCUT
-        if (options.graphcut) {
-            throw std::runtime_error(
-                "--with-graphcut requires a build with Python graph-cut support");
-        }
-#endif
         const auto inputs = load_inputs(options);
 
-#ifdef SEAM_WITH_PYTHON_GRAPHCUT
-        std::unique_ptr<PythonBaseline> baseline;
-        if (options.graphcut) {
-            baseline = std::make_unique<PythonBaseline>();
-        }
-#endif
         std::vector<Method> methods{{"dp", "C++", find_dp}, {"greedy", "C++", find_greedy}};
         
-        methods.push_back({"graphcut", "C++", [&](const EnergyView& view) {
+        methods.push_back({"graphcut", "C++", [](const EnergyView& view) {
             int H = view.steps();
             int W = view.positions();
             
@@ -267,12 +247,6 @@ int main(int argc, char** argv) {
             return gc.find_vertical_seam(energy_matrix);
         }});
 
-#ifdef SEAM_WITH_PYTHON_GRAPHCUT
-        if (baseline) {
-            methods.push_back({"graphcut", "Python (Dinic)",
-                               [&](const EnergyView& view) { return baseline->find(view); }});
-        }
-#endif
         fs::create_directories(options.out);
         std::ofstream report(options.out / "results.csv");
         if (!report) {

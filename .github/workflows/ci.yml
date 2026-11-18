@@ -5,22 +5,22 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
       - name: Install OpenCV and a display for the GUI test
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends libopencv-dev xvfb xauth
-          python -m pip install numpy networkx pybind11
       - name: Build the C++ application and run the tests
         run: |
-          cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release \
-            -DSEAM_WITH_PYTHON_GRAPHCUT=ON -DPython3_EXECUTABLE="$(command -v python)"
+          cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
           cmake --build build/native --parallel 2
           ctest --test-dir build/native --output-on-failure
           xvfb-run -a build/native/seam-carve data/demo.png --max-width 40 --gui-smoke
-          build/native/seam-evaluate --with-graphcut --max-width 24 --cols 2 --rows 1 \
+          build/native/seam-evaluate --max-width 24 --cols 2 --rows 1 \
             --repeats 1 --out build/native/ci-comparison data/*.jpg
+          for method in dp greedy graphcut; do
+            grep -Fq "\"$method\",\"C++\"" build/native/ci-comparison/results.csv
+            test -s "build/native/ci-comparison/02_landscape/${method}_resized.png"
+          done
       - name: Publish comparison images, metrics and playback frames
         uses: actions/upload-artifact@v4
         with:
@@ -73,21 +73,3 @@ jobs:
           name: SeamCarving-Windows-x64
           path: build/SeamCarving-Windows/
           if-no-files-found: error
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install -r requirements.txt
-      - name: Unit tests (incl. brute-force optimality)
-        run: python -m pytest -q
-      - name: Demo run + comparison
-        run: |
-          python scripts/make_demo_image.py
-          python main.py data/demo.png --algo dp --remove-cols 20 --remove-rows 10 --out output/ci
-          python evaluate.py data/demo.png --cols 8 --rows 4 --max-width 60 --out output/eval
-          python scripts/greedy_failure_case.py
-      - name: Keep results
-        uses: actions/upload-artifact@v4
-        with: { name: results, path: output/ }

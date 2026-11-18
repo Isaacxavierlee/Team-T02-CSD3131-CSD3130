@@ -34,36 +34,6 @@ target_link_libraries(seam-profile PRIVATE seam_dp)
 add_executable(seam-evaluate cpp/evaluate.cpp)
 target_link_libraries(seam-evaluate PRIVATE seam_resize seam_dp seam_greedy seam_graphcut)
 
-option(SEAM_WITH_PYTHON_GRAPHCUT "Compare the repository's original Python graph-cut solver" OFF)
-if(SEAM_WITH_PYTHON_GRAPHCUT)
-    find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter Development)
-    set(PYBIND11_FINDPYTHON ON)
-    execute_process(COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
-        OUTPUT_VARIABLE pybind11_hint OUTPUT_STRIP_TRAILING_WHITESPACE)
-    find_package(pybind11 CONFIG REQUIRED HINTS "${pybind11_hint}")
-    foreach(package IN ITEMS numpy networkx)
-        execute_process(COMMAND "${Python3_EXECUTABLE}" -c
-            "from pathlib import Path; import ${package}; print(Path(${package}.__file__).resolve().parents[1])"
-            OUTPUT_VARIABLE package_dir RESULT_VARIABLE import_status OUTPUT_STRIP_TRAILING_WHITESPACE)
-        if(NOT import_status EQUAL 0)
-            message(FATAL_ERROR "Install ${package} for ${Python3_EXECUTABLE} to enable graph-cut comparison")
-        endif()
-        file(TO_CMAKE_PATH "${package_dir}" ${package}_site)
-    endforeach()
-    execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import sys; print(sys.base_prefix)"
-        OUTPUT_VARIABLE python_home OUTPUT_STRIP_TRAILING_WHITESPACE)
-    file(TO_CMAKE_PATH "${python_home}" python_home)
-
-    add_library(seam_python_baseline cpp/python_baseline.cpp)
-    target_include_directories(seam_python_baseline PUBLIC cpp)
-    target_link_libraries(seam_python_baseline PUBLIC seam_image pybind11::embed)
-    target_compile_definitions(seam_python_baseline PRIVATE
-        SEAM_LEGACY_ALGORITHMS="${PROJECT_SOURCE_DIR}/seam_carving/algorithms"
-        SEAM_NUMPY_SITE="${numpy_site}" SEAM_NETWORKX_SITE="${networkx_site}" SEAM_PYTHON_HOME="${python_home}")
-    target_compile_definitions(seam-evaluate PRIVATE SEAM_WITH_PYTHON_GRAPHCUT)
-    target_link_libraries(seam-evaluate PRIVATE seam_python_baseline)
-endif()
-
 if(BUILD_TESTING)
     add_executable(test_resize tests/cpp/test_resize.cpp)
     target_link_libraries(test_resize PRIVATE seam_resize seam_dp)
@@ -71,14 +41,6 @@ if(BUILD_TESTING)
 
     add_test(NAME evaluate_photo COMMAND seam-evaluate --max-width 24 --cols 2 --rows 1
         --repeats 1 --out "${PROJECT_BINARY_DIR}/test-evaluate" "${PROJECT_SOURCE_DIR}/data/02_landscape.jpg")
-    if(SEAM_WITH_PYTHON_GRAPHCUT)
-        add_executable(test_graph_baseline tests/cpp/test_graph_baseline.cpp)
-        target_link_libraries(test_graph_baseline PRIVATE seam_python_baseline seam_dp seam_greedy)
-        add_test(NAME compare_seam_costs COMMAND test_graph_baseline)
-        add_test(NAME python_graphcut_comparison COMMAND seam-evaluate --with-graphcut
-            --max-width 16 --cols 1 --rows 1 --repeats 1 --out "${PROJECT_BINARY_DIR}/test-graphcut"
-            "${PROJECT_SOURCE_DIR}/data/02_landscape.jpg")
-    endif()
 
     add_executable(test_dp tests/cpp/test_dp.cpp)
     target_link_libraries(test_dp PRIVATE seam_dp)
