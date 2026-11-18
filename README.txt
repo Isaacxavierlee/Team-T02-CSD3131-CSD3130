@@ -63,9 +63,10 @@ and vertical-first removal order:
    .\build\native\Release\seam-evaluate.exe --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/eval @photos
 
 For each image the evaluator writes the prepared input, the resized image and
-seam overlay for each method, and a comparison panel. results.csv records
-dimensions, timings, total seam energy, pixel differences and differing paths
-against DP. Timings depend on the machine and build.
+seam overlay for each method, and a comparison panel. The generated file
+output/eval/results.csv records dimensions, timings, total seam energy,
+pixel differences and differing paths against DP. Timings depend on the
+machine and build.
 
 4. TESTS AND RESULTS
 
@@ -81,11 +82,11 @@ column connects directly to the sink without an energy-weighted edge, so a
 lowest-energy boundary seam can be missed. The report gives a concrete
 counterexample and the saved 5-photo results.
 
-The raw C++ comparison is in evaluation/graphcut_results/eval/results.csv.
-The corresponding panels and resized images are in the same directory.
-evaluation/dp-profile.csv contains the DP storage and Sobel worker experiment.
-The older width-48 and width-80 comparisons used a Python graph-cut solver.
-They are retained as historical results and labelled in evaluation/README.md.
+evaluation/algorithm-comparison.csv records timings and seam costs for DP,
+greedy and graph cut. The 6 panels in evaluation/comparisons/ show the
+resized images and seam overlays.
+evaluation/dp-memory-and-sobel-threading.csv records DP time and buffer size for
+2 storage modes, plus Sobel time for 1, 2, 4 and 8 workers.
 
 Source files:
 

@@ -1,13 +1,14 @@
 # C++ seam-carving comparison
 
-The [C++ results CSV](graphcut_results/eval/results.csv) contains 5 photographs
-and the synthetic demo. Each image was reduced proportionally to a width of 48
-pixels using OpenCV's area resampling. DP, greedy and graph cut used Sobel
-energy and removed 4 columns followed by 3 rows.
+The [algorithm comparison](algorithm-comparison.csv) covers 5 photographs
+and the [synthetic demo](comparisons/demo.png). OpenCV's area resampling
+reduced each image proportionally to a width of 48 pixels. DP, greedy and
+graph cut used Sobel energy and removed 4 columns followed by 3 rows.
 
 For each method and image, the evaluator ran an untimed pass to record the
 images and seam paths, followed by 3 timed passes. The CSV contains 54
-timed records. Each photograph in the table links to its saved comparison panel.
+timed records. The [comparison panels](comparisons/) show the input, its Sobel
+energy map, and each method's resized image and seam overlay.
 
 ## 5-photo results
 
@@ -16,11 +17,11 @@ of the 7 removed seams on their respective changing energy maps.
 
 | Photo | Input | Target | DP (ms) | Greedy (ms) | Graph cut (ms) | DP energy | Greedy energy | Graph-cut energy |
 |---|---|---|---:|---:|---:|---:|---:|---:|
-| [Landmark](graphcut_results/eval/01_landmark/comparison.png) | 48 × 88 | 44 × 85 | 0.896 | 0.360 | 316.738 | 48,762 | 66,132 | 48,800 |
-| [Landscape](graphcut_results/eval/02_landscape/comparison.png) | 48 × 38 | 44 × 35 | 0.301 | 0.099 | 30.496 | 40,976 | 50,214 | 41,824 |
-| [Portrait](graphcut_results/eval/03_person/comparison.png) | 48 × 72 | 44 × 69 | 0.264 | 0.395 | 177.324 | 51,820 | 98,924 | 51,940 |
-| [Texture](graphcut_results/eval/04_texture/comparison.png) | 48 × 32 | 44 × 29 | 0.134 | 0.114 | 40.009 | 79,098 | 111,658 | 82,640 |
-| [Architecture](graphcut_results/eval/05_architecture/comparison.png) | 48 × 64 | 44 × 61 | 0.393 | 0.166 | 69.772 | 33,582 | 95,484 | 33,582 |
+| [Landmark](comparisons/01_landmark.png) | 48 × 88 | 44 × 85 | 0.896 | 0.360 | 316.738 | 48,762 | 66,132 | 48,800 |
+| [Landscape](comparisons/02_landscape.png) | 48 × 38 | 44 × 35 | 0.301 | 0.099 | 30.496 | 40,976 | 50,214 | 41,824 |
+| [Portrait](comparisons/03_person.png) | 48 × 72 | 44 × 69 | 0.264 | 0.395 | 177.324 | 51,820 | 98,924 | 51,940 |
+| [Texture](comparisons/04_texture.png) | 48 × 32 | 44 × 29 | 0.134 | 0.114 | 40.009 | 79,098 | 111,658 | 82,640 |
+| [Architecture](comparisons/05_architecture.png) | 48 × 64 | 44 × 61 | 0.393 | 0.166 | 69.772 | 33,582 | 95,484 | 33,582 |
 
 Greedy removed more energy than DP on all 5 photos. Graph cut matched all
 7 DP paths on architecture and recorded a higher total cost on the other
@@ -36,6 +37,10 @@ untimed pass records original-coordinate overlays and paths. Red marks
 vertical seams and blue marks horizontal seams. `different_paths_vs_dp`
 counts steps whose path differs from DP in that step's current image.
 
+The [DP memory and Sobel threading measurements](dp-memory-and-sobel-threading.csv)
+give the mean time over 5 runs for each DP storage mode and Sobel worker
+count. The byte counts cover the DP cost and parent buffers.
+
 ## Run the comparison
 
 Build the project using the [project instructions](../README.txt), then run:
@@ -45,17 +50,6 @@ $photos = @(Get-ChildItem data -Filter '*.jpg' | Sort-Object Name | ForEach-Obje
 .\build\native\Release\seam-evaluate.exe --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/compare-48 @photos data/demo.png
 ```
 
-The paths, dimensions, seam costs and pixel differences in the saved C++
-results were reproduced with the current evaluator. Timing values will vary.
-
-## Earlier comparisons
-
-The [width-48](width-48/results.csv) and [width-80](width-80/results.csv)
-records used C++ DP and greedy with a Python Dinic graph-cut implementation.
-They are historical measurements from the earlier pipeline. Their graph-cut
-timings and paths describe that implementation and include transfer through
-the Python bridge. The corresponding panels are in those folders.
-
-The separate [DP profile](dp-profile.csv) records 5 repetitions for the
-rolling and full DP buffers and the Sobel worker configurations. The reported
-DP bytes count the cost and parent buffers, rather than total process memory.
+The command writes `output/compare-48/results.csv` and a folder per input
+with its individual PNGs and comparison panel. The current evaluator reproduced the saved dimensions,
+seam costs, path comparisons and pixel differences. Timing values will vary.
