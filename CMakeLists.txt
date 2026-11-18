@@ -46,6 +46,10 @@ if(BUILD_TESTING)
     target_link_libraries(test_dp PRIVATE seam_dp)
     add_test(NAME dp_optimality COMMAND test_dp)
 
+    add_executable(test_graphcut tests/cpp/test_graphcut.cpp)
+    target_link_libraries(test_graphcut PRIVATE seam_graphcut)
+    add_test(NAME graphcut_optimality COMMAND test_graphcut)
+
     add_executable(test_image tests/cpp/test_image.cpp)
     target_link_libraries(test_image PRIVATE seam_image)
     add_test(NAME image_energy COMMAND test_image "${PROJECT_SOURCE_DIR}/data/01_landmark.jpg")

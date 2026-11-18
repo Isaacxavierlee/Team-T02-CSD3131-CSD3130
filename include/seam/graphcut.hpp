@@ -1,6 +1,7 @@
 #ifndef GRAPHCUT_HPP
 #define GRAPHCUT_HPP
 
+#include <limits>
 #include <vector>
 
 struct Edge {
@@ -15,9 +16,9 @@ private:
     int H, W;
     int S, T; // Source and Sink nodes
     std::vector<std::vector<Edge>> adj;
-    const double INF = 1e9; // Representation of infinite capacity
+    const double INF = std::numeric_limits<double>::infinity();
 
-    // Converts 2D pixel coordinates to a 1D graph node ID
+    // Converts a row and graph column to a 1D node ID.
     int get_node(int r, int c) const;
 
     // Helper to add a directed edge with capacity and a residual backward edge
@@ -27,7 +28,7 @@ private:
     bool bfs(std::vector<int>& parent, std::vector<int>& parent_edge);
 
 public:
-    // Takes a 2D energy map and returns the optimal seam (column indices to remove)
+    // Returns the minimum-energy seam for a rectangular, finite, nonnegative map.
     std::vector<int> find_vertical_seam(const std::vector<std::vector<double>>& energy_map);
 };
 

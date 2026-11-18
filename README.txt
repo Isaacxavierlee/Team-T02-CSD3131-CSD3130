@@ -60,7 +60,7 @@ After building, evaluate the 5 photographs with the same Sobel energy map
 and vertical-first removal order:
 
    $photos = @(Get-ChildItem data -Filter '*.jpg' | Sort-Object Name | ForEach-Object { $_.FullName })
-   .\build\native\Release\seam-evaluate.exe --max-width 48 --cols 4 --rows 3 --repeats 3 --out output/eval @photos
+   .\build\native\Release\seam-evaluate.exe --max-width 48 --cols 4 --rows 3 --repeats 5 --out output/eval @photos
 
 For each image the evaluator writes the prepared input, the resized image and
 seam overlay for each method, and a comparison panel. The generated file
@@ -70,21 +70,18 @@ machine and build.
 
 4. TESTS AND RESULTS
 
-CTest runs 7 checks: resize_playback, evaluate_photo, dp_optimality,
-image_energy, greedy_choices, command_line_resize and conflicting_targets.
-The DP test compares both vertical and horizontal seams with exhaustive
-enumeration on small maps. The greedy test checks its local choices. The
-evaluator test runs all 3 methods and checks repeatability. It does not
-establish graph-cut optimality.
+CTest runs 8 checks: resize_playback, evaluate_photo, dp_optimality,
+graphcut_optimality, image_energy, greedy_choices, command_line_resize and
+conflicting_targets. The DP and graph-cut tests independently compare seams
+in both orientations with exhaustive enumeration on small maps. The greedy
+test checks its local choices, and the evaluator checks repeatability.
 
-The current graph-cut implementation uses Edmonds-Karp. Its last image
-column connects directly to the sink without an energy-weighted edge, so a
-lowest-energy boundary seam can be missed. The report gives a concrete
-counterexample and the saved 5-photo results.
+Graph cut uses Edmonds-Karp. An extra boundary node at the end of each row
+lets the cut select and price the last pixel as well as every other column.
 
-evaluation/algorithm-comparison.csv records timings and seam costs for DP,
-greedy and graph cut. The 6 panels in evaluation/comparisons/ show the
-resized images and seam overlays.
+evaluation/algorithm-comparison.csv records timings and seam costs at 2
+preview widths for DP, greedy and graph cut. The 6 panels in
+evaluation/comparisons/ show the width-48 resized images and seam overlays.
 evaluation/dp-memory-and-sobel-threading.csv records DP time and buffer size for
 2 storage modes, plus Sobel time for 1, 2, 4 and 8 workers.
 

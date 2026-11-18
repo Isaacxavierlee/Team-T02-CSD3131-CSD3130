@@ -1,9 +1,11 @@
 #include "seam/graphcut.hpp"
 #include <queue>
 #include <algorithm>
+#include <cmath>
+#include <stdexcept>
 
 int GraphCutSeamCarver::get_node(int r, int c) const {
-    return r * W + c;
+    return r * (W + 1) + c;
 }
 
 void GraphCutSeamCarver::add_edge(int from, int to, double cap) {
@@ -27,7 +29,7 @@ bool GraphCutSeamCarver::bfs(std::vector<int>& parent, std::vector<int>& parent_
         for (int i = 0; i < adj[curr].size(); ++i) {
             const Edge& e = adj[curr][i];
             // If not visited and there is residual capacity
-            if (parent[e.to] == -1 && e.capacity - e.flow > 0.0001) {
+            if (parent[e.to] == -1 && e.capacity - e.flow > 0.0) {
                 parent[e.to] = curr;
                 parent_edge[e.to] = i;
                 q.push(e.to);
@@ -38,21 +40,39 @@ bool GraphCutSeamCarver::bfs(std::vector<int>& parent, std::vector<int>& parent_
 }
 
 std::vector<int> GraphCutSeamCarver::find_vertical_seam(const std::vector<std::vector<double>>& energy_map) {
-    H = energy_map.size();
-    if (H == 0) return {};
-    W = energy_map[0].size();
+    if (energy_map.empty()) return {};
+    const std::size_t width = energy_map[0].size();
+    if (width == 0 ||
+        width >= static_cast<std::size_t>(std::numeric_limits<int>::max()) ||
+        energy_map.size() >
+            (static_cast<std::size_t>(std::numeric_limits<int>::max()) - 2) / (width + 1)) {
+        throw std::invalid_argument("Energy map dimensions are invalid or too large");
+    }
+    for (const auto& row : energy_map) {
+        if (row.size() != width) {
+            throw std::invalid_argument("Energy map must be rectangular");
+        }
+        for (double energy : row) {
+            if (!std::isfinite(energy) || energy < 0.0) {
+                throw std::invalid_argument("Energy values must be finite and nonnegative");
+            }
+        }
+    }
+    H = static_cast<int>(energy_map.size());
+    W = static_cast<int>(width);
     
-    S = H * W;
-    T = H * W + 1;
+    S = H * (W + 1);
+    T = S + 1;
     adj.assign(T + 1, std::vector<Edge>());
 
     // 1. Build the Graph
     for (int r = 0; r < H; ++r) {
         add_edge(S, get_node(r, 0), INF);
-        add_edge(get_node(r, W - 1), T, INF);
+        // The extra boundary node lets the cut pay for the last pixel as well.
+        add_edge(get_node(r, W), T, INF);
 
-        for (int c = 0; c < W; ++c) {
-            if (c < W - 1) {
+        for (int c = 0; c <= W; ++c) {
+            if (c < W) {
                 add_edge(get_node(r, c), get_node(r, c + 1), energy_map[r][c]);
                 add_edge(get_node(r, c + 1), get_node(r, c), INF);
             }
@@ -101,7 +121,7 @@ std::vector<int> GraphCutSeamCarver::find_vertical_seam(const std::vector<std::v
         q.pop();
 
         for (const Edge& e : adj[curr]) {
-            if (!reachable[e.to] && e.capacity - e.flow > 0.0001) {
+            if (!reachable[e.to] && e.capacity - e.flow > 0.0) {
                 reachable[e.to] = true;
                 q.push(e.to);
             }
