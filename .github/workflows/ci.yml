@@ -6,9 +6,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install OpenCV and a display for the GUI test
+        timeout-minutes: 15
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libopencv-dev xvfb xauth
+          printf '%s\tpriority:%s\n' \
+            https://archive.ubuntu.com/ubuntu/ 1 \
+            https://mirror.math.princeton.edu/pub/ubuntu/ 2 |
+            sudo tee /etc/apt/ci-ubuntu-mirrors.txt >/dev/null
+          sudo tee /etc/apt/ci-ubuntu.sources >/dev/null <<'EOF'
+          Types: deb
+          URIs: mirror+file:/etc/apt/ci-ubuntu-mirrors.txt
+          Suites: noble noble-updates noble-security
+          Components: main restricted universe multiverse
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
+          apt_options=(
+            -o Dir::Etc::sourcelist=/etc/apt/ci-ubuntu.sources
+            -o Dir::Etc::sourceparts=-
+            -o Acquire::Retries=2
+            -o Acquire::https::Timeout=20
+          )
+          sudo apt-get "${apt_options[@]}" update --error-on=any
+          sudo apt-get "${apt_options[@]}" install -y --no-install-recommends libopencv-dev xvfb xauth
       - name: Build the C++ application and run the tests
         run: |
           cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
